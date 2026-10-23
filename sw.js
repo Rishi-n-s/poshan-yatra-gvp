@@ -1,4 +1,5 @@
-const C = "py-v3";
+// Bump this whenever a deployed static asset needs to replace an older cached copy.
+const C = "py-v4";
 const A = [
   "./",
   "index.html",

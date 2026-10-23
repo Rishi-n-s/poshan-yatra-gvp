@@ -1054,7 +1054,8 @@ async function saveRep(){
   photos:cur.photos
  };
  if(_supa){
-  await _supa.from("reports").upsert({...d,id:rid()},{onConflict:"id"});
+  const {error}=await _supa.from("reports").upsert({...d,id:rid()},{onConflict:"id"});
+  if(error)throw new Error(error.message);
  }else{
   await localDb.doc("reports/"+rid()).set(d);
  }

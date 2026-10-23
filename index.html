@@ -129,7 +129,16 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
      <div><label>Day</label><select id="fday"></select></div>
      <div><label>Date</label><input type="date" id="fd"></div>
     </div>
-    <label>School / Place</label><input id="fs" placeholder="Primary / High School name">
+    <label>School / Place</label>
+    <select id="fst">
+      <option value="">-- Choose School Type --</option>
+      <option value="school-primary">school-primary</option>
+      <option value="school-secondary">school-secondary</option>
+      <option value="school-hs">school-hs</option>
+      <option value="anganvadi">anganvadi</option>
+      <option value="social-group">social-group</option>
+    </select>
+    <input id="fs" placeholder="School name">
     <label>Address</label><input id="fp" placeholder="Village, taluka">
     <div class="mut" id="gpsl" style="margin-top:4px"></div>
     <div class="row">

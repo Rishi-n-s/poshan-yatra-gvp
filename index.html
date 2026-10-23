@@ -455,74 +455,75 @@ function updateTeamQuickSelect(){
   }
  }catch(e){}
 
- // Try Firebase first if valid configuration is present
- if(window.firebase&&window.FIREBASE_CONFIG&&FIREBASE_CONFIG.apiKey&&!/PASTE/.test(FIREBASE_CONFIG.apiKey)){
-  try{
-   const app=firebase.initializeApp(FIREBASE_CONFIG);
-   const fs=app.firestore();
-   const st=app.storage();
-   try{fs.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
-   db=fs;
-   assets={
-    upload:async b=>{
-     const id=Date.now()+"_"+Math.random().toString(36).slice(2,8);
-     const r=st.ref("photos/"+id+".jpg");
-     await r.put(b,{contentType:"image/jpeg"});
-     return{id,url:await r.getDownloadURL(),sizeBytes:b.size};
-    }
-   };
-   isFirebase=true;
-   $("#liveBadge").textContent="Cloud Live";
-   $("#fbStatusText").innerHTML='<b style="color:var(--ok)">✓ Connected to Firebase</b> ('+esc(FIREBASE_CONFIG.projectId)+'). Changes sync in real-time across all devices.';
-  }catch(e){
-   console.warn("Firebase init failed, falling back to local IndexedDB:", e);
-  }
- }
+ // -------- Supabase init --------
+ const sbUrl=window.SUPABASE_URL||"";
+ const sbAnon=window.SUPABASE_ANON||"";
+ if(sbUrl&&sbAnon&&!/PASTE/.test(sbUrl)){
+  _supa=supabase.createClient(sbUrl,sbAnon);
 
- if(!db){
-  db=localDb;
-  assets=localAssets;
-  isFirebase=false;
+  // Helper: upload blob to Supabase Storage
+  window._upload=async(blob)=>{
+   const ext=blob.type.includes("png")?"png":"jpeg";
+   const name="photos/"+Date.now()+"_"+Math.random().toString(36).slice(2,8)+"."+ext;
+   const{error}=await _supa.storage.from("photos").upload(name,blob,{contentType:blob.type,upsert:false});
+   if(error)throw error;
+   const{data:{publicUrl}}=_supa.storage.from("photos").getPublicUrl(name);
+   return{id:name,url:publicUrl,sizeBytes:blob.size};
+  };
+
+  // Fetch helpers
+  const fetchReports=async()=>{
+   const{data}=await _supa.from("reports").select("*").order("day");
+   if(data){reports=data.map(d=>({...d,photos:d.photos||[]}));drawDash();drawMine();}
+   $("#upd").textContent="Updated "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+   $("#liveBadge").className="live";
+  };
+  const fetchTeams=async()=>{
+   const{data}=await _supa.from("teams").select("*");
+   if(data){teams=Object.fromEntries(data.map(d=>[d.id,d]));updateTeamQuickSelect();renderCredTable();}
+  };
+  const fetchSettings=async()=>{
+   const{data}=await _supa.from("settings").select("*").eq("id","main").maybeSingle();
+   if(data&&data.logo){logoUrl=data.logo;logoImg=new Image();logoImg.src=logoUrl;$("#hl").src=logoUrl;}
+  };
+
+  await Promise.all([fetchReports(),fetchTeams(),fetchSettings()]);
+  await initDefaultLogins();
+
+  // Realtime subscriptions
+  _supa.channel("db-changes")
+   .on("postgres_changes",{event:"*",schema:"public",table:"reports"},fetchReports)
+   .on("postgres_changes",{event:"*",schema:"public",table:"teams"},fetchTeams)
+   .on("postgres_changes",{event:"*",schema:"public",table:"settings"},fetchSettings)
+   .subscribe();
+
+  $("#liveBadge").textContent="Cloud Live";
+  $("#fbStatusText").innerHTML='<b style="color:var(--ok)">&#10003; Connected to Supabase</b>. Real-time sync is active across all devices.';
+ }else{
+  // -------- Local/offline fallback --------
   $("#liveBadge").textContent="Local / Offline Ready";
-  $("#fbStatusText").innerHTML='<b>Running in Local Offline Mode (IndexedDB)</b>.<br><span class="mut">All reports, team logins, and watermarked photos are securely stored on this device. You can sync across devices by exporting/importing JSON backups below, or connect a Firebase project in <code>config.js</code>.</span>';
+  $("#fbStatusText").innerHTML='<b>Offline Mode (IndexedDB)</b>.<br><span class="mut">Paste your Supabase URL &amp; anon key in <code>config.js</code> to enable real-time cloud sync.</span>';
+
+  const stLocal=await idbGet("settings","main");
+  if(stLocal&&stLocal.logo){logoUrl=stLocal.logo;logoImg.src=logoUrl;$("#hl").src=logoUrl;}
+  window._upload=localAssets.upload.bind(localAssets);
+
+  await initDefaultLogins();
+
+  localDb.collection("reports").onSnapshot(s=>{
+   reports=s.docs.map(d=>({id:d.id,...d.data()}));
+   $("#upd").textContent="Updated "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+   drawDash();drawMine();
+  });
+  localDb.collection("teams").onSnapshot(s=>{
+   teams=Object.fromEntries(s.docs.map(d=>[d.id,d.data()]));
+   updateTeamQuickSelect();renderCredTable();
+  });
+  localDb.doc("settings/main").onSnapshot(s=>{
+   const d=s.data()||{};
+   if(d.logo){logoUrl=d.logo;logoImg=new Image();logoImg.src=logoUrl;$("#hl").src=logoUrl;}
+  });
  }
-
- // Initialize settings
- const st=await idbGet("settings","main");
- if(st&&st.logo){
-  logoUrl=st.logo;
-  logoImg.src=logoUrl;
-  $("#hl").src=logoUrl;
- }
-
- await initDefaultLogins();
-
- // Subscribe to reports
- db.collection("reports").onSnapshot(s=>{
-  reports=s.docs.map(d=>({id:d.id,...d.data()}));
-  $("#upd").textContent="Updated "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-  $("#liveBadge").className="live";
-  drawDash();
-  drawMine();
- });
-
- // Subscribe to teams
- db.collection("teams").onSnapshot(s=>{
-  teams=Object.fromEntries(s.docs.map(d=>[d.id,d.data()]));
-  updateTeamQuickSelect();
-  renderCredTable();
- });
-
- // Subscribe to settings
- db.doc("settings/main").onSnapshot(s=>{
-  const d=s.data()||{};
-  if(d.logo){
-   logoUrl=d.logo;
-   logoImg=new Image();
-   logoImg.src=logoUrl;
-   $("#hl").src=logoUrl;
-  }
- });
 
  try{
   const t=localStorage.getItem("py_me");

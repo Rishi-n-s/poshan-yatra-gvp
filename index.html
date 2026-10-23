@@ -1007,7 +1007,7 @@
       }catch (e) { }
 
       drawDash();
-    };
+    }();
 
     addEventListener("offline", () => {
       const l = $("#liveBadge"); if (l) { l.className = "live off"; l.textContent = "Offline" }

@@ -538,7 +538,7 @@ addEventListener("offline",()=>{
  $("#upd").textContent="Offline mode active (Local storage ready)";
 });
 addEventListener("online",()=>{
- const l=$("#liveBadge");if(l){l.className="live";l.textContent=isFirebase?"Cloud Live":"Active"}
+ const l=$("#liveBadge");if(l){l.className="live";l.textContent=_supa?"Cloud Live":"Active"}
  toast("Back online — syncing");
 });
 
@@ -1002,8 +1002,14 @@ function showForm(){
 const rid=()=>me+"_d"+$("#fday").value;
 
 async function loadCur(){
- const s=await db.doc("reports/"+rid()).get();
- const d=s.exists?s.data():null;
+ let d=null;
+ if(_supa){
+  const{data}=await _supa.from("reports").select("*").eq("id",rid()).maybeSingle();
+  d=data||null;
+ }else{
+  const s=await localDb.doc("reports/"+rid()).get();
+  d=s.exists?s.data():null;
+ }
  cur=d||{photos:[]};
  cur.photos=cur.photos||[];
  
@@ -1047,7 +1053,11 @@ async function saveRep(){
   gps:pos?pos.latitude.toFixed(5)+","+pos.longitude.toFixed(5):(cur.gps||""),
   photos:cur.photos
  };
- await db.doc("reports/"+rid()).set(d);
+ if(_supa){
+  await _supa.from("reports").upsert({...d,id:rid()},{onConflict:"id"});
+ }else{
+  await localDb.doc("reports/"+rid()).set(d);
+ }
  return d;
 }
 
@@ -1161,7 +1171,7 @@ async function stamp(v,vw,vh){
  
  c.toBlob(async b=>{
   try{
-   const a=await assets.upload(b);
+   const a=await window._upload(b);
    cur.photos.push({id:a.id,url:a.url,time:t,gps:g});
    await saveRep();
    drawMine();
@@ -1192,7 +1202,11 @@ $("#genReset").onclick=async()=>{
  for(const t of TEAMS){
   const u="gir_"+t.id,p=t.id;
   const h=await sha(u+":"+p);
-  await db.doc("teams/"+t.id).set({name:t.n,user:u,pass:p,hash:h});
+  if(_supa){
+   await _supa.from("teams").upsert({id:t.id,name:t.n,"user":u,pass:p,hash:h},{onConflict:"id"});
+  }else{
+   await localDb.doc("teams/"+t.id).set({name:t.n,user:u,pass:p,hash:h});
+  }
  }
  toast("Logins reset to defaults! ✓");
 };
@@ -1204,7 +1218,11 @@ $("#gen").onclick=async()=>{
   const u="gir_"+t.id;
   const p=Array.from(crypto.getRandomValues(new Uint8Array(6)),b=>al[b%al.length]).join("");
   const h=await sha(u+":"+p);
-  await db.doc("teams/"+t.id).set({name:t.n,user:u,pass:p,hash:h});
+  if(_supa){
+   await _supa.from("teams").upsert({id:t.id,name:t.n,"user":u,pass:p,hash:h},{onConflict:"id"});
+  }else{
+   await localDb.doc("teams/"+t.id).set({name:t.n,user:u,pass:p,hash:h});
+  }
  }
  toast("New random logins generated! ✓");
 };
@@ -1213,8 +1231,12 @@ $("#lf").onchange=async e=>{
  const f=e.target.files[0];
  if(!f)return;
  try{
-  const a=await assets.upload(f);
-  await db.doc("settings/main").set({logo:a.url});
+  const a=await window._upload(f);
+  if(_supa){
+   await _supa.from("settings").upsert({id:"main",logo:a.url},{onConflict:"id"});
+  }else{
+   await localDb.doc("settings/main").set({logo:a.url});
+  }
   logoUrl=a.url;
   logoImg.src=logoUrl;
   $("#hl").src=logoUrl;

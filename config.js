@@ -1,9 +1,4 @@
-// Paste your Firebase web-app settings here (see README.md, step 1).
-window.FIREBASE_CONFIG = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_PROJECT.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  storageBucket: "PASTE_PROJECT.appspot.com",
-  messagingSenderId: "PASTE_SENDER_ID",
-  appId: "PASTE_APP_ID"
-};
+// Paste your Supabase project URL and anon key here (see README.md for steps).
+// Get these from: https://app.supabase.com → Your Project → Settings → API
+window.SUPABASE_URL  = "PASTE_YOUR_SUPABASE_URL";   // e.g. https://xyz.supabase.co
+window.SUPABASE_ANON = "PASTE_YOUR_ANON_KEY";        // public anon/service key

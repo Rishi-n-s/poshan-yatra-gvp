@@ -1,596 +1,1071 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#8b1e2d">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Poshan Yatra 2026 · G-051 Gir Somnath</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#8b1e2d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Poshan Yatra 2026 · G-051 Gir Somnath</title>
 
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
 
-<!-- Libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-<script src="config.js"></script>
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
 
-<style>
-:root{--bg:#fbf6ee;--fg:#2b2220;--mut:#7a6c66;--card:#fff;--line:#eadfce;--brand:#8b1e2d;--brand2:#6d1522;--acc:#e8a33d;--ok:#2e7d4f;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1514;--fg:#f1e7e0;--mut:#b3a299;--card:#261d1c;--line:#3b2e2c;--brand:#c4414f;--brand2:#8b1e2d}}
-:root[data-theme="dark"]{--bg:#1b1514;--fg:#f1e7e0;--mut:#b3a299;--card:#261d1c;--line:#3b2e2c;--brand:#c4414f;--brand2:#8b1e2d}
-*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overscroll-behavior-y:contain;-webkit-tap-highlight-color:transparent}
-header{background:linear-gradient(135deg,var(--brand2),var(--brand));color:#fff;padding:16px 16px;border-bottom:4px solid var(--acc);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-header img{width:54px;height:54px;border-radius:50%;background:#fff;padding:3px;object-fit:contain}
-header h1{margin:0;font:700 21px Georgia,"Times New Roman",serif}
-header p{margin:2px 0 0;opacity:.88;font-size:13px}
-.hm{margin-left:auto;font-size:12px;text-align:right;opacity:.95}
-.live{color:#7CFC9A;font-weight:700}
-.live::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:#7CFC9A;margin-right:5px;animation:pl 1.6s infinite}
-@keyframes pl{50%{opacity:.25}}
-.live.off{color:#ffb4b4}.live.off::before{background:#ffb4b4;animation:none}
-nav{display:flex;gap:4px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--line);overflow-x:auto}
-nav button{border:0;background:none;color:var(--mut);padding:8px 14px;border-radius:8px;font:600 14px inherit;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
-nav button.on{background:var(--brand);color:#fff}
-main{max-width:1100px;margin:0 auto;padding:16px;animation:fi .25s}
-@keyframes fi{from{opacity:0;transform:translateY(6px)}}
-.grid{display:grid;gap:12px}.k{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}.c3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
-.kpi b{display:block;font:700 28px Georgia,serif;color:var(--brand)}.kpi span{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
-h2{font:700 18px Georgia,serif;margin:22px 0 10px;color:var(--brand)}h3{margin:0 0 6px;font-size:16px}
-.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--acc)}
-.mut{color:var(--mut);font-size:13px}.tag{display:inline-block;padding:1px 8px;border-radius:99px;background:var(--line);font-size:12px;margin-right:4px}
-.tag.ok{background:var(--ok);color:#fff}
-label{display:block;font-size:13px;font-weight:600;margin:10px 0 3px}
-input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font:inherit;font-size:16px}
-.btn{background:var(--brand);color:#fff;border:0;padding:10px 16px;border-radius:8px;font:600 14px inherit;cursor:pointer;min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;transition:opacity .15s}
-.btn:hover{opacity:.9}.btn.alt{background:var(--card);color:var(--brand);border:1px solid var(--brand)}.btn:disabled{opacity:.5}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.row{grid-template-columns:1fr}}
-.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mut);font-size:12px;text-transform:uppercase}
-.ph{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}.ph img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;cursor:pointer;background:var(--line)}
-#cam{position:fixed;inset:0;background:#000d;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:99;padding:12px}
-#cam video{max-width:100%;max-height:70vh;border-radius:10px}.hide{display:none!important}
-.note{border-left:4px solid var(--acc);background:var(--card);padding:10px 12px;border-radius:6px;font-size:13px;margin:10px 0}
-#toast{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:12px;left:12px;max-width:380px;margin-left:auto;background:var(--brand2);color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 6px 20px #0005;z-index:100;display:none;font-size:13px}
-#lb{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;z-index:105;padding:12px}#lb img{max-width:100%;max-height:100%;border-radius:8px}
-#splash{position:fixed;inset:0;background:linear-gradient(135deg,#6d1522,#8b1e2d);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;z-index:110;transition:opacity .4s}
-#splash img{width:96px;height:96px;border-radius:50%;background:#fff;padding:6px;object-fit:contain}
-@media(max-width:640px){
- nav{position:fixed;bottom:0;left:0;right:0;justify-content:space-around;z-index:50;border-top:1px solid var(--line);border-bottom:0;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
- nav button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;padding:6px 14px}
- nav button span{font-size:18px}
- main{padding:12px 12px 96px}
- header h1{font-size:18px}.hm{margin-left:0;text-align:left}
- .rt tr:first-child{display:none}.rt tr{display:block;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;padding:6px}
- .rt td{display:flex;justify-content:space-between;gap:10px;white-space:normal;border:0;padding:3px 4px}
- .rt td::before{content:attr(data-label);color:var(--mut);font-size:12px}
-}
-</style>
-</head>
-<body>
-<header>
- <img id="hl" alt="Gujarat Vidyapith" src="logo.png" onerror="this.src='gujarat-vidyapith-logo.png'">
- <div>
-  <h1>Poshan Yatra 2026</h1>
-  <p>Group G-051 · Gir Somnath · 27 students · 10 teams — Gujarat Vidyapith</p>
- </div>
- <div class="hm">
-  <span class="live" id="liveBadge">Online</span> <span id="online">Ready</span><br>
-  <span id="upd">Synced</span>
- </div>
-</header>
-
-<nav>
- <button data-t="dash" class="on"><span>📊</span>Dashboard</button>
- <button data-t="field"><span>📝</span>Team entry</button>
- <button data-t="admin" id="tAdmin"><span>⚙️</span>Admin</button>
-</nav>
-
-<main>
- <div id="hint" class="note hide">Install on your phone: open the browser menu (Share on iPhone, ⋮ on Android) and choose <b>Add to Home Screen</b>. <button class="btn alt" id="hx" style="padding:2px 10px;min-height:0">Got it</button></div>
- 
- <section id="dash"></section>
- 
- <section id="field" class="hide">
-  <div id="login" class="card" style="max-width:440px;margin:0 auto">
-   <h3>Team Login</h3>
-   <p class="mut">Select your team or enter credentials below.</p>
-   <label>Quick Team Select</label>
-   <select id="quickTeam">
-    <option value="">-- Choose your team --</option>
-   </select>
-   <label>Username</label>
-   <input id="lu" autocapitalize="off" autocorrect="off">
-   <label>Password</label>
-   <input id="lp" type="password">
-   <p style="margin-top:14px">
-    <button class="btn" id="lgo">Sign in</button>
-    <span id="lerr" class="mut" style="color:var(--brand);margin-left:8px"></span>
-   </p>
-  </div>
-  
-  <div id="form" class="hide">
-   <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-     <b id="who" style="font-size:17px"></b>
-     <button class="btn alt" id="lout" style="padding:4px 10px;min-height:0">Sign out</button>
-    </div>
-    <div class="mut" id="mem" style="margin:4px 0 10px"></div>
-    <div class="row">
-     <div><label>Day</label><select id="fday"></select></div>
-     <div><label>Date</label><input type="date" id="fd"></div>
-    </div>
-    <label>School / Place</label>
-    <select id="fst">
-      <option value="">-- Choose School Type --</option>
-      <option value="school-primary">school-primary</option>
-      <option value="school-secondary">school-secondary</option>
-      <option value="school-hs">school-hs</option>
-      <option value="anganvadi">anganvadi</option>
-      <option value="social-group">social-group</option>
-    </select>
-    <input id="fs" placeholder="School name">
-    <label>Address</label><input id="fp" placeholder="Village, taluka">
-    <div class="mut" id="gpsl" style="margin-top:4px"></div>
-    <div class="row">
-     <div><label>Contact person</label><input id="fpn" placeholder="Principal / In-charge"></div>
-     <div><label>Contact number</label><input id="fpc" type="tel" placeholder="Mobile number"></div>
-    </div>
-    <label>Activity 1</label><input class="act" placeholder="e.g. Morning Assembly & Poshan Oath">
-    <label>Activity 2</label><input class="act" placeholder="e.g. Nutrition Rally in Village">
-    <label>Activity 3</label><input class="act" placeholder="e.g. Height & Weight Measurement">
-    <label>Activity 4</label><input class="act" placeholder="e.g. Poshan Dish Demonstration">
-    <label>Activity 5</label><input class="act" placeholder="e.g. Drama / Street Play on Health">
-    <p style="margin-top:16px">
-     <button class="btn" id="save">Save day report</button>
-     <span class="mut" id="sv" style="margin-left:10px"></span>
-    </p>
-   </div>
-   
-   <h2>Photographs <span class="mut" id="pc"></span></h2>
-   <div class="note">Photos taken here are automatically stamped with the official Gujarat Vidyapith watermark, date-time, GPS coordinates, school name, team, and group. Fill school and address first.</div>
-   <p>
-    <button class="btn" id="snap">📷 Open camera</button>
-   </p>
-   <div class="ph" id="myph"></div>
-  </div>
- </section>
- 
- <section id="admin" class="hide">
-  <div class="card">
-   <h3>1 · Watermark Logo</h3>
-   <p class="mut">Default watermark is Gujarat Vidyapith logo (<code>logo.png</code>). Upload another if needed.</p>
-   <input type="file" id="lf" accept="image/*">
-   <div id="lst" class="mut" style="margin-top:4px"></div>
-  </div>
-  
-  <div class="card" style="margin-top:14px">
-   <h3>2 · Team Credentials & Logins</h3>
-   <p class="mut">Login credentials for each of the 10 teams. You can share each team their username and password.</p>
-   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-    <button class="btn alt" id="genReset">Reset to Default Logins</button>
-    <button class="btn" id="gen">Generate Random Passwords</button>
-   </div>
-   <div class="tw" id="cred"></div>
-  </div>
-
-  <div class="card" style="margin-top:14px">
-   <h3>3 · Data Backup & Sync (JSON & Excel)</h3>
-   <p class="mut">Export all reports and photos to Excel or JSON. Share JSON via WhatsApp to sync devices without internet.</p>
-   <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="btn" id="xlAdmin">📥 Export Excel with Photos (.xlsx)</button> <button class="btn alt" id="xlAdminForm">📄 Export Form Only</button>
-    <button class="btn" id="expJson">💾 Export Backup (JSON)</button>
-    <label class="btn alt" style="display:inline-flex;align-items:center;cursor:pointer;margin:0">
-     📂 Import Backup (JSON) <input type="file" id="impJson" accept=".json" style="display:none">
-    </label>
-    <button class="btn alt" id="clrData" style="color:#d32f2f;border-color:#d32f2f">Clear All Data</button>
-   </div>
-   <div id="bkMsg" class="mut" style="margin-top:6px"></div>
-  </div>
-
-  <div class="card" style="margin-top:14px">
-   <h3>4 · Cloud Sync Status (Firebase)</h3>
-   <p class="mut" id="fbStatusText">Checking cloud connection status…</p>
-  </div>
- </section>
-</main>
-
-<input type="file" id="cf" accept="image/*" capture="environment" class="hide">
-<div id="splash">
- <img src="logo.png" alt="GVP" onerror="this.src='gujarat-vidyapith-logo.png'">
- <b style="font-size:20px">Poshan Yatra 2026</b>
- <span>Gujarat Vidyapith · G-051 Gir Somnath</span>
-</div>
-<div id="toast"></div>
-<div id="lb" onclick="this.style.display='none'"><img id="lbi" alt="Full view"></div>
-
-<div id="cam">
- <video id="vid" playsinline autoplay muted></video>
- <div style="display:flex;gap:12px;margin-top:8px">
-  <button class="btn" id="shot">Capture Photo</button>
-  <button class="btn alt" id="cx">Close</button>
- </div>
- <div class="mut" id="cmsg" style="color:#fff;text-align:center"></div>
-</div>
-
-<script>
-/* ---------- Service Worker Registration ---------- */
-if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
- window.addEventListener('load', () => {
-  navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration:', e));
- });
-}
-
-/* ---------- Splash & Globals ---------- */
-function hideSplash(){
- const s=document.getElementById("splash");
- if(s){s.style.opacity=0;setTimeout(()=>s.remove(),400)}
-}
-setTimeout(hideSplash,1500);
-
-const MAIN="Gir Somnath (G-051)";
-const R=(t,n,m)=>({id:(t+n).toLowerCase(),t,n:t+" Team "+n,m:m.split(";").map(x=>x.trim())});
-const TEAMS=[
- R("Kodinar",1,"Bhargavbhai R. Bhaliya|M.P.Ed.;Sanskruti Jani P|M.P.Ed.;Drashtantbhai R Bhaliya|B.P.Ed."),
- R("Kodinar",2,"Pravesh D. Tiwari|B.P.E.S;Ritignaben K. Solanki|M.S.W"),
- R("Talala",1,"Ashik R. Parmar|M.A. (Economics);Yashvi S. Ukani|B.P.Ed."),
- R("Una",1,"Jashvant N. Rathod|B.P.Ed.;Bhavesh R Bambhaniya|B.P.Ed.;Purab K. Jethwa|B.P.Ed."),
- R("Una",2,"Dodiya Jenish|B.P.E.S.;Chirag D. Kotadiya|B.P.Ed.;Manas K. Damaniya|B.P.Ed."),
- R("Una",3,"Ridhdhi J. Solanki|B.A. Sociology;Dhruvi R. Maru|B.P.E.S;Vivek H. Subarana|M.Sc. Micro;Khushi J. Solanki|B.A. Gujarati"),
- R("Veraval",1,"Rishi N. Solanki|B.C.A.;Aarti J. Solanki|M.A. Sociology;Aruna J. Solanki|B.A. Sociology;Pooja K. Vadhiya|M.A. Sociology"),
- R("Veraval",2,"Bhavik Kathi|B.C.A.;Hardik Bamaniya|M.A. History;Sheetal Solanki|M.A. Journalism"),
- R("Veraval",3,"Krishna Zala|B.A. Economics;Shripali Solanki|B.A. Gujarati"),
- R("Sutrapada",1,"Bhuvaneshari Chudasama|M.S.W.")
-];
-const TALUKAS=["Kodinar","Talala","Una","Veraval","Sutrapada"],DAYS=12,NS=TEAMS.reduce((n,t)=>n+t.m.length,0);
-
-let me=null,reports=[],teams={},logoUrl="logo.png",logoImg=null,openD=new Set(),pos=null,cur={photos:[]},fT="",fD="";
-let db=null,assets=null,isFirebase=false;
-
-const $=s=>document.querySelector(s);
-const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const sha=async t=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)))].map(x=>x.toString(16).padStart(2,"0")).join("");
-const today=()=>new Date().toISOString().slice(0,10),T=id=>TEAMS.find(t=>t.id==id);
-
-let tt;
-function toast(m){
- const e=$("#toast");if(!e)return;
- e.textContent=m;e.style.display="block";clearTimeout(tt);
- tt=setTimeout(()=>e.style.display="none",3500);
-}
-
-/* ---------- Local Storage / IndexedDB Storage Layer ---------- */
-const IDB_NAME="PoshanYatraDB",IDB_VER=1;
-let idb=null;
-function openIDB(){
- return new Promise((res)=>{
-  if(!window.indexedDB){res(null);return}
-  const req=indexedDB.open(IDB_NAME,IDB_VER);
-  req.onupgradeneeded=e=>{
-   const d=e.target.result;
-   if(!d.objectStoreNames.contains("reports"))d.createObjectStore("reports",{keyPath:"id"});
-   if(!d.objectStoreNames.contains("teams"))d.createObjectStore("teams",{keyPath:"id"});
-   if(!d.objectStoreNames.contains("settings"))d.createObjectStore("settings",{keyPath:"id"});
-  };
-  req.onsuccess=e=>{idb=e.target.result;res(idb)};
-  req.onerror=()=>res(null);
- });
-}
-
-const idbGet=(store,key)=>new Promise(res=>{
- if(!idb){try{res(JSON.parse(localStorage.getItem(store+":"+key)||"null"))}catch(e){res(null)}return}
- try{
-  const tx=idb.transaction(store,"readonly"),req=tx.objectStore(store).get(key);
-  req.onsuccess=()=>res(req.result||null);req.onerror=()=>res(null);
- }catch(e){res(null)}
-});
-
-const idbGetAll=store=>new Promise(res=>{
- if(!idb){
-  try{
-   const pre=store+":",arr=[];
-   for(let i=0;i<localStorage.length;i++){
-    const k=localStorage.key(i);
-    if(k.startsWith(pre))arr.push(JSON.parse(localStorage.getItem(k)));
-   }
-   res(arr);
-  }catch(e){res([])}
-  return;
- }
- try{
-  const tx=idb.transaction(store,"readonly"),req=tx.objectStore(store).getAll();
-  req.onsuccess=()=>res(req.result||[]);req.onerror=()=>res([]);
- }catch(e){res([])}
-});
-
-const idbPut=(store,val)=>new Promise(res=>{
- if(!idb){try{localStorage.setItem(store+":"+val.id,JSON.stringify(val))}catch(e){}res(true);return}
- try{
-  const tx=idb.transaction(store,"readwrite");
-  tx.objectStore(store).put(val);
-  tx.oncomplete=()=>res(true);tx.onerror=()=>res(false);
- }catch(e){res(false)}
-});
-
-const idbClear=store=>new Promise(res=>{
- if(!idb){
-  const pre=store+":";
-  for(let i=localStorage.length-1;i>=0;i--){
-   const k=localStorage.key(i);
-   if(k.startsWith(pre))localStorage.removeItem(k);
-  }
-  res(true);return;
- }
- try{
-  const tx=idb.transaction(store,"readwrite");
-  tx.objectStore(store).clear();
-  tx.oncomplete=()=>res(true);tx.onerror=()=>res(false);
- }catch(e){res(false)}
-});
-
-/* Simple reactive event bus */
-const listeners={reports:new Set(),teams:new Set(),settings:new Set()};
-const notify=s=>listeners[s]&&listeners[s].forEach(cb=>cb());
-
-/* Fallback local storage DB interface */
-const localDb={
- collection(col){
-  return {
-   async onSnapshot(cb){
-    listeners[col]=listeners[col]||new Set();
-    const refresh=async()=>{
-     const docs=await idbGetAll(col);
-     cb({docs:docs.map(d=>({id:d.id,data:()=>d}))});
-    };
-    listeners[col].add(refresh);
-    await refresh();
-   }
-  };
- },
- doc(path){
-  const [col,id]=path.split("/");
-  return {
-   async get(){
-    const d=await idbGet(col,id);
-    return {exists:!!d,data:()=>d};
-   },
-   async set(data){
-    const row={...data,id};
-    await idbPut(col,row);
-    notify(col);
-    return row;
-   },
-   async onSnapshot(cb){
-    listeners[col]=listeners[col]||new Set();
-    const refresh=async()=>{
-     const d=await idbGet(col,id);
-     cb({data:()=>d});
-    };
-    listeners[col].add(refresh);
-    await refresh();
-   }
-  };
- }
-};
-
-/* Local Assets storage (Base64 data URL) */
-const localAssets={
- async upload(blob){
-  return new Promise((res,rej)=>{
-   const r=new FileReader();
-   r.onload=()=>{
-    const id="img_"+Date.now()+"_"+Math.random().toString(36).slice(2,7);
-    res({id,url:r.result});
-   };
-   r.onerror=rej;
-   r.readAsDataURL(blob);
-  });
- }
-};
-
-/* ---------- Initialization ---------- */
-function tab(t){
- document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x.dataset.t==t));
- ["dash","field","admin"].forEach(s=>$("#"+s).classList.toggle("hide",s!=t));
- try{localStorage.setItem("py_tab",t)}catch(e){}
- scrollTo(0,0);
-}
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>tab(b.dataset.t));
-$("#fday").innerHTML=Array.from({length:DAYS},(_,i)=>`<option value="${i+1}">Day ${i+1}</option>`).join("");
-
-async function initDefaultLogins(){
- const existing=await idbGetAll("teams");
- if(!existing||existing.length<TEAMS.length){
-  for(const t of TEAMS){
-   const u="gir_"+t.id,p=t.id; // default password is team id (e.g. kodinar1)
-   const h=await sha(u+":"+p);
-   await db.doc("teams/"+t.id).set({name:t.n,user:u,pass:p,hash:h});
-  }
- }
- renderCredTable();
-}
-
-function updateTeamQuickSelect(){
- const sel=$("#quickTeam");
- if(!sel)return;
- sel.innerHTML=`<option value="">-- Choose your team --</option>`+
-  TEAMS.map(t=>{
-   const cred=teams[t.id];
-   const u=cred?cred.user:("gir_"+t.id);
-   const p=cred&&cred.pass?cred.pass:t.id;
-   return `<option value="${t.id}" data-u="${esc(u)}" data-p="${esc(p)}">${esc(t.n)} (${esc(u)})</option>`;
-  }).join("");
- sel.onchange=()=>{
-  const opt=sel.options[sel.selectedIndex];
-  if(opt&&opt.value){
-   $("#lu").value=opt.dataset.u||"";
-   $("#lp").value=opt.dataset.p||"";
-  }
- };
-}
-
-(async()=>{
- await openIDB();
- logoImg=new Image();
- logoImg.src=logoUrl;
- $("#fd").value=today();
- 
- $("#hx").onclick=()=>{
-  $("#hint").classList.add("hide");
-  try{localStorage.setItem("py_hint","1")}catch(e){}
- };
-
- try{
-  const t=localStorage.getItem("py_tab");
-  if(t)tab(t);
-  if(/Android|iPhone|iPad/i.test(navigator.userAgent)&&!localStorage.getItem("py_hint")){
-   $("#hint").classList.remove("hide");
-  }
- }catch(e){}
-
- // Try Firebase first if valid configuration is present
- if(window.firebase&&window.FIREBASE_CONFIG&&FIREBASE_CONFIG.apiKey&&!/PASTE/.test(FIREBASE_CONFIG.apiKey)){
-  try{
-   const app=firebase.initializeApp(FIREBASE_CONFIG);
-   const fs=app.firestore();
-   const st=app.storage();
-   try{fs.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
-   db=fs;
-   assets={
-    upload:async b=>{
-     const id=Date.now()+"_"+Math.random().toString(36).slice(2,8);
-     const r=st.ref("photos/"+id+".jpg");
-     await r.put(b,{contentType:"image/jpeg"});
-     return{id,url:await r.getDownloadURL(),sizeBytes:b.size};
+  <style>
+    :root {
+      --bg: #fbf6ee;
+      --fg: #2b2220;
+      --mut: #7a6c66;
+      --card: #fff;
+      --line: #eadfce;
+      --brand: #8b1e2d;
+      --brand2: #6d1522;
+      --acc: #e8a33d;
+      --ok: #2e7d4f;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px)
     }
-   };
-   isFirebase=true;
-   $("#liveBadge").textContent="Cloud Live";
-   $("#fbStatusText").innerHTML='<b style="color:var(--ok)">✓ Connected to Firebase</b> ('+esc(FIREBASE_CONFIG.projectId)+'). Changes sync in real-time across all devices.';
-  }catch(e){
-   console.warn("Firebase init failed, falling back to local IndexedDB:", e);
-  }
- }
 
- if(!db){
-  db=localDb;
-  assets=localAssets;
-  isFirebase=false;
-  $("#liveBadge").textContent="Local / Offline Ready";
-  $("#fbStatusText").innerHTML='<b>Running in Local Offline Mode (IndexedDB)</b>.<br><span class="mut">All reports, team logins, and watermarked photos are securely stored on this device. You can sync across devices by exporting/importing JSON backups below, or connect a Firebase project in <code>config.js</code>.</span>';
- }
+    @media(prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #1b1514;
+        --fg: #f1e7e0;
+        --mut: #b3a299;
+        --card: #261d1c;
+        --line: #3b2e2c;
+        --brand: #c4414f;
+        --brand2: #8b1e2d
+      }
+    }
 
- // Initialize settings
- const st=await idbGet("settings","main");
- if(st&&st.logo){
-  logoUrl=st.logo;
-  logoImg.src=logoUrl;
-  $("#hl").src=logoUrl;
- }
+    :root[data-theme="dark"] {
+      --bg: #1b1514;
+      --fg: #f1e7e0;
+      --mut: #b3a299;
+      --card: #261d1c;
+      --line: #3b2e2c;
+      --brand: #c4414f;
+      --brand2: #8b1e2d
+    }
 
- await initDefaultLogins();
+    * {
+      box-sizing: border-box
+    }
 
- // Subscribe to reports
- db.collection("reports").onSnapshot(s=>{
-  reports=s.docs.map(d=>({id:d.id,...d.data()}));
-  $("#upd").textContent="Updated "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-  $("#liveBadge").className="live";
-  drawDash();
-  drawMine();
- });
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px)
+    }
 
- // Subscribe to teams
- db.collection("teams").onSnapshot(s=>{
-  teams=Object.fromEntries(s.docs.map(d=>[d.id,d.data()]));
-  updateTeamQuickSelect();
-  renderCredTable();
- });
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      overscroll-behavior-y: contain;
+      -webkit-tap-highlight-color: transparent
+    }
 
- // Subscribe to settings
- db.doc("settings/main").onSnapshot(s=>{
-  const d=s.data()||{};
-  if(d.logo){
-   logoUrl=d.logo;
-   logoImg=new Image();
-   logoImg.src=logoUrl;
-   $("#hl").src=logoUrl;
-  }
- });
+    header {
+      background: linear-gradient(135deg, var(--brand2), var(--brand));
+      color: #fff;
+      padding: 16px 16px;
+      border-bottom: 4px solid var(--acc);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap
+    }
 
- try{
-  const t=localStorage.getItem("py_me");
-  if(t&&T(t)){me=t;showForm()}
- }catch(e){}
+    header img {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #fff;
+      padding: 3px;
+      object-fit: contain
+    }
 
- drawDash();
-})();
+    header h1 {
+      margin: 0;
+      font: 700 21px Georgia, "Times New Roman", serif
+    }
 
-addEventListener("offline",()=>{
- const l=$("#liveBadge");if(l){l.className="live off";l.textContent="Offline"}
- $("#upd").textContent="Offline mode active (Local storage ready)";
-});
-addEventListener("online",()=>{
- const l=$("#liveBadge");if(l){l.className="live";l.textContent=isFirebase?"Cloud Live":"Active"}
- toast("Back online — syncing");
-});
+    header p {
+      margin: 2px 0 0;
+      opacity: .88;
+      font-size: 13px
+    }
 
-/* ---------- Dashboard ---------- */
-const rep=id=>reports.filter(r=>r.team_id==id).sort((a,b)=>b.day-a.day);
-const np=r=>(r.photos||[]).length;
+    .hm {
+      margin-left: auto;
+      font-size: 12px;
+      text-align: right;
+      opacity: .95
+    }
 
-function drawDash(){
- let Rs=reports.filter(r=>(!fT||r.taluka==fT)&&(!fD||r.day==fD)),P=Rs.flatMap(r=>(r.photos||[]).map(p=>({...p,r})));
- const schools=new Set(reports.map(r=>(r.school||"").toLowerCase()).filter(Boolean)).size;
- const act=TEAMS.filter(t=>rep(t.id).length).length;
- const md=Math.max(0,...reports.map(r=>+r.day||0));
- const tn=reports.reduce((n,r)=>n+np(r),0);
- 
- $("#dash").innerHTML=`
+    .live {
+      color: #7CFC9A;
+      font-weight: 700
+    }
+
+    .live::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #7CFC9A;
+      margin-right: 5px;
+      animation: pl 1.6s infinite
+    }
+
+    @keyframes pl {
+      50% {
+        opacity: .25
+      }
+    }
+
+    .live.off {
+      color: #ffb4b4
+    }
+
+    .live.off::before {
+      background: #ffb4b4;
+      animation: none
+    }
+
+    nav {
+      display: flex;
+      gap: 4px;
+      padding: 8px 12px;
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+      overflow-x: auto
+    }
+
+    nav button {
+      border: 0;
+      background: none;
+      color: var(--mut);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font: 600 14px inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    nav button.on {
+      background: var(--brand);
+      color: #fff
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px;
+      animation: fi .25s
+    }
+
+    @keyframes fi {
+      from {
+        opacity: 0;
+        transform: translateY(6px)
+      }
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px
+    }
+
+    .k {
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr))
+    }
+
+    .c3 {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px
+    }
+
+    .kpi b {
+      display: block;
+      font: 700 28px Georgia, serif;
+      color: var(--brand)
+    }
+
+    .kpi span {
+      color: var(--mut);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .05em
+    }
+
+    h2 {
+      font: 700 18px Georgia, serif;
+      margin: 22px 0 10px;
+      color: var(--brand)
+    }
+
+    h3 {
+      margin: 0 0 6px;
+      font-size: 16px
+    }
+
+    .bar {
+      height: 6px;
+      background: var(--line);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 6px 0
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      background: var(--acc)
+    }
+
+    .mut {
+      color: var(--mut);
+      font-size: 13px
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 99px;
+      background: var(--line);
+      font-size: 12px;
+      margin-right: 4px
+    }
+
+    .tag.ok {
+      background: var(--ok);
+      color: #fff
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin: 10px 0 3px
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--fg);
+      font: inherit;
+      font-size: 16px
+    }
+
+    .btn {
+      background: var(--brand);
+      color: #fff;
+      border: 0;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font: 600 14px inherit;
+      cursor: pointer;
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: opacity .15s
+    }
+
+    .btn:hover {
+      opacity: .9
+    }
+
+    .btn.alt {
+      background: var(--card);
+      color: var(--brand);
+      border: 1px solid var(--brand)
+    }
+
+    .btn:disabled {
+      opacity: .5
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px
+    }
+
+    @media(max-width:560px) {
+      .row {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .tw {
+      overflow-x: auto
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 13px
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap
+    }
+
+    th {
+      color: var(--mut);
+      font-size: 12px;
+      text-transform: uppercase
+    }
+
+    .ph {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px
+    }
+
+    .ph img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+      background: var(--line)
+    }
+
+    #cam {
+      position: fixed;
+      inset: 0;
+      background: #000d;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 99;
+      padding: 12px
+    }
+
+    #cam video {
+      max-width: 100%;
+      max-height: 70vh;
+      border-radius: 10px
+    }
+
+    .hide {
+      display: none !important
+    }
+
+    .note {
+      border-left: 4px solid var(--acc);
+      background: var(--card);
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin: 10px 0
+    }
+
+    #toast {
+      position: fixed;
+      top: calc(12px + env(safe-area-inset-top, 0px));
+      right: 12px;
+      left: 12px;
+      max-width: 380px;
+      margin-left: auto;
+      background: var(--brand2);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px #0005;
+      z-index: 100;
+      display: none;
+      font-size: 13px
+    }
+
+    #lb {
+      position: fixed;
+      inset: 0;
+      background: #000d;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 105;
+      padding: 12px
+    }
+
+    #lb img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 8px
+    }
+
+    #splash {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #6d1522, #8b1e2d);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #fff;
+      z-index: 110;
+      transition: opacity .4s
+    }
+
+    #splash img {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: #fff;
+      padding: 6px;
+      object-fit: contain
+    }
+
+    @media(max-width:640px) {
+      nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        justify-content: space-around;
+        z-index: 50;
+        border-top: 1px solid var(--line);
+        border-bottom: 0;
+        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px))
+      }
+
+      nav button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 12px;
+        padding: 6px 14px
+      }
+
+      nav button span {
+        font-size: 18px
+      }
+
+      main {
+        padding: 12px 12px 96px
+      }
+
+      header h1 {
+        font-size: 18px
+      }
+
+      .hm {
+        margin-left: 0;
+        text-align: left
+      }
+
+      .rt tr:first-child {
+        display: none
+      }
+
+      .rt tr {
+        display: block;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        margin-bottom: 8px;
+        padding: 6px
+      }
+
+      .rt td {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        white-space: normal;
+        border: 0;
+        padding: 3px 4px
+      }
+
+      .rt td::before {
+        content: attr(data-label);
+        color: var(--mut);
+        font-size: 12px
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img id="hl" alt="Gujarat Vidyapith" src="logo.png" onerror="this.src='gujarat-vidyapith-logo.png'">
+    <div>
+      <h1>Poshan Yatra 2026</h1>
+      <p>Group G-051 · Gir Somnath · 26 students · 10 teams — Gujarat Vidyapith</p>
+    </div>
+    <div class="hm">
+      <span class="live" id="liveBadge">Online</span> <span id="online">Ready</span><br>
+      <span id="upd">Synced</span>
+    </div>
+  </header>
+
+  <nav>
+    <button data-t="dash" class="on"><span>📊</span>Dashboard</button>
+    <button data-t="field"><span>📝</span>Team entry</button>
+    <button data-t="admin" id="tAdmin"><span>⚙️</span>Admin</button>
+  </nav>
+
+  <main>
+    <div id="hint" class="note hide">Install on your phone: open the browser menu (Share on iPhone, ⋮ on Android) and
+      choose <b>Add to Home Screen</b>. <button class="btn alt" id="hx" style="padding:2px 10px;min-height:0">Got
+        it</button></div>
+
+    <section id="dash"></section>
+
+    <section id="field" class="hide">
+      <div id="login" class="card" style="max-width:440px;margin:0 auto">
+        <h3>Team Login</h3>
+        <p class="mut">Select your team or enter credentials below.</p>
+        <label>Quick Team Select</label>
+        <select id="quickTeam">
+          <option value="">-- Choose your team --</option>
+        </select>
+        <label>Username</label>
+        <input id="lu" autocapitalize="off" autocorrect="off">
+        <label>Password</label>
+        <input id="lp" type="password">
+        <p style="margin-top:14px">
+          <button class="btn" id="lgo">Sign in</button>
+          <span id="lerr" class="mut" style="color:var(--brand);margin-left:8px"></span>
+        </p>
+      </div>
+
+      <div id="form" class="hide">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <b id="who" style="font-size:17px"></b>
+            <button class="btn alt" id="lout" style="padding:4px 10px;min-height:0">Sign out</button>
+          </div>
+          <div class="mut" id="mem" style="margin:4px 0 10px"></div>
+          <div class="row">
+            <div><label>Day</label><select id="fday"></select></div>
+            <div><label>Date</label><input type="date" id="fd"></div>
+          </div>
+          <label>School / Place</label>
+          <select id="fst">
+            <option value="">-- Choose School Type --</option>
+            <option value="school-primary">school-primary</option>
+            <option value="school-secondary">school-secondary</option>
+            <option value="school-hs">school-hs</option>
+            <option value="anganvadi">anganvadi</option>
+            <option value="social-group">social-group</option>
+          </select>
+          <input id="fs" placeholder="School name">
+          <label>Address</label><input id="fp" placeholder="Village, taluka">
+          <div class="mut" id="gpsl" style="margin-top:4px"></div>
+          <div class="row">
+            <div><label>Contact person</label><input id="fpn" placeholder="Principal / In-charge"></div>
+            <div><label>Contact number</label><input id="fpc" type="tel" placeholder="Mobile number"></div>
+          </div>
+          <label>Activity 1</label><input class="act" placeholder="e.g. Morning Assembly & Poshan Oath">
+          <label>Activity 2</label><input class="act" placeholder="e.g. Nutrition Rally in Village">
+          <label>Activity 3</label><input class="act" placeholder="e.g. Height & Weight Measurement">
+          <label>Activity 4</label><input class="act" placeholder="e.g. Poshan Dish Demonstration">
+          <label>Activity 5</label><input class="act" placeholder="e.g. Drama / Street Play on Health">
+          <p style="margin-top:16px">
+            <button class="btn" id="save">Save day report</button>
+            <span class="mut" id="sv" style="margin-left:10px"></span>
+          </p>
+        </div>
+
+        <h2>Photographs <span class="mut" id="pc"></span></h2>
+        <div class="note">Photos taken here are automatically stamped with the official Gujarat Vidyapith watermark,
+          date-time, GPS coordinates, school name, team, and group. Fill school and address first.</div>
+        <p>
+          <button class="btn" id="snap">📷 Open camera</button>
+        </p>
+        <div class="ph" id="myph"></div>
+      </div>
+    </section>
+
+    <section id="admin" class="hide">
+      <div class="card">
+        <h3>1 · Watermark Logo</h3>
+        <p class="mut">Default watermark is Gujarat Vidyapith logo (<code>logo.png</code>). Upload another if needed.
+        </p>
+        <input type="file" id="lf" accept="image/*">
+        <div id="lst" class="mut" style="margin-top:4px"></div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>2 · Team Credentials & Logins</h3>
+        <p class="mut">Login credentials for each of the 10 teams. You can share each team their username and password.
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="btn alt" id="genReset">Reset to Default Logins</button>
+          <button class="btn" id="gen">Generate Random Passwords</button>
+        </div>
+        <div class="tw" id="cred"></div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>3 · Data Backup & Sync (JSON & Excel)</h3>
+        <p class="mut">Export all reports and photos to Excel or JSON. Share JSON via WhatsApp to sync devices without
+          internet.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="xlAdmin">📥 Export Excel with Photos (.xlsx)</button> <button class="btn alt"
+            id="xlAdminForm">📄 Export Form Only</button>
+          <button class="btn" id="expJson">💾 Export Backup (JSON)</button>
+          <label class="btn alt" style="display:inline-flex;align-items:center;cursor:pointer;margin:0">
+            📂 Import Backup (JSON) <input type="file" id="impJson" accept=".json" style="display:none">
+          </label>
+          <button class="btn alt" id="clrData" style="color:#d32f2f;border-color:#d32f2f">Clear All Data</button>
+        </div>
+        <div id="bkMsg" class="mut" style="margin-top:6px"></div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>4 · Cloud Sync Status (Firebase)</h3>
+        <p class="mut" id="fbStatusText">Checking cloud connection status…</p>
+      </div>
+    </section>
+  </main>
+
+  <input type="file" id="cf" accept="image/*" capture="environment" class="hide">
+  <div id="splash">
+    <img src="logo.png" alt="GVP" onerror="this.src='gujarat-vidyapith-logo.png'">
+    <b style="font-size:20px">Poshan Yatra 2026</b>
+    <span>Gujarat Vidyapith · G-051 Gir Somnath</span>
+  </div>
+  <div id="toast"></div>
+  <div id="lb" onclick="this.style.display='none'"><img id="lbi" alt="Full view"></div>
+
+  <div id="cam">
+    <video id="vid" playsinline autoplay muted></video>
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <button class="btn" id="shot">Capture Photo</button>
+      <button class="btn alt" id="cx">Close</button>
+    </div>
+    <div class="mut" id="cmsg" style="color:#fff;text-align:center"></div>
+  </div>
+
+  <script>
+    /* ---------- Service Worker Registration ---------- */
+    if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration:', e));
+      });
+    }
+
+    /* ---------- Splash & Globals ---------- */
+    function hideSplash() {
+      const s = document.getElementById("splash");
+      if (s) { s.style.opacity = 0; setTimeout(() => s.remove(), 400) }
+    }
+    setTimeout(hideSplash, 1500);
+
+    const MAIN = "Gir Somnath (G-051)";
+    const R = (t, n, m) => ({ id: (t + n).toLowerCase(), t, n: t + " Team " + n, m: m.split(";").map(x => x.trim()) });
+    const TEAMS = [
+      R("Kodinar", 1, "Bhargavbhai R. Bhaliya|M.P.Ed.;Sanskruti Jani P|M.P.Ed."),
+      R("Kodinar", 2, "Pravesh D. Tiwari|B.P.E.S;Ritignaben K. Solanki|M.S.W"),
+      R("Talala", 1, "Ashik R. Parmar|M.A. (Economics);Yashvi S. Ukani|B.P.Ed."),
+      R("Una", 1, "Jashvant N. Rathod|B.P.Ed.;Bhavesh R Bambhaniya|B.P.Ed.;Purab K. Jethwa|B.P.Ed."),
+      R("Una", 2, "Dodiya Jenish|B.P.E.S.;Chirag D. Kotadiya|B.P.Ed.;Manas K. Damaniya|B.P.Ed."),
+      R("Una", 3, "Ridhdhi J. Solanki|B.A. Sociology;Dhruvi R. Maru|B.P.E.S;Vivek H. Subarana|M.Sc. Micro;Khushi J. Solanki|B.A. Gujarati"),
+      R("Veraval", 1, "Rishi N. Solanki|B.C.A.;Aarti J. Solanki|M.A. Sociology;Aruna J. Solanki|B.A. Sociology;Pooja K. Vadhiya|M.A. Sociology"),
+      R("Veraval", 2, "Bhavik Kathi|B.C.A.;Hardik Bamaniya|M.A. History;Sheetal Solanki|M.A. Journalism"),
+      R("Veraval", 3, "Krishna Zala|B.A. Economics;Shripali Solanki|B.A. Gujarati"),
+      R("Sutrapada", 1, "Bhuvaneshari Chudasama|M.S.W.")
+    ];
+    const TALUKAS = ["Kodinar", "Talala", "Una", "Veraval", "Sutrapada"], DAYS = 12, NS = TEAMS.reduce((n, t) => n + t.m.length, 0);
+
+    let me = null, reports = [], teams = {}, logoUrl = "logo.png", logoImg = null, openD = new Set(), pos = null, cur = { photos: [] }, fT = "", fD = "";
+    let _supa = null; // Supabase client
+
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const sha = async t => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)))].map(x => x.toString(16).padStart(2, "0")).join("");
+    const today = () => new Date().toISOString().slice(0, 10), T = id => TEAMS.find(t => t.id == id);
+
+    let tt;
+    function toast(m) {
+      const e = $("#toast"); if (!e) return;
+      e.textContent = m; e.style.display = "block"; clearTimeout(tt);
+      tt = setTimeout(() => e.style.display = "none", 3500);
+    }
+
+    /* ---------- Local Storage / IndexedDB Storage Layer ---------- */
+    const IDB_NAME = "PoshanYatraDB", IDB_VER = 1;
+    let idb = null;
+    function openIDB() {
+      return new Promise((res) => {
+        if (!window.indexedDB) { res(null); return }
+        const req = indexedDB.open(IDB_NAME, IDB_VER);
+        req.onupgradeneeded = e => {
+          const d = e.target.result;
+          if (!d.objectStoreNames.contains("reports")) d.createObjectStore("reports", { keyPath: "id" });
+          if (!d.objectStoreNames.contains("teams")) d.createObjectStore("teams", { keyPath: "id" });
+          if (!d.objectStoreNames.contains("settings")) d.createObjectStore("settings", { keyPath: "id" });
+        };
+        req.onsuccess = e => { idb = e.target.result; res(idb) };
+        req.onerror = () => res(null);
+      });
+    }
+
+    const idbGet = (store, key) => new Promise(res => {
+      if (!idb) { try { res(JSON.parse(localStorage.getItem(store + ":" + key) || "null")) } catch (e) { res(null) } return }
+      try {
+        const tx = idb.transaction(store, "readonly"), req = tx.objectStore(store).get(key);
+        req.onsuccess = () => res(req.result || null); req.onerror = () => res(null);
+      } catch (e) { res(null) }
+    });
+
+    const idbGetAll = store => new Promise(res => {
+      if (!idb) {
+        try {
+          const pre = store + ":", arr = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k.startsWith(pre)) arr.push(JSON.parse(localStorage.getItem(k)));
+          }
+          res(arr);
+        } catch (e) { res([]) }
+        return;
+      }
+      try {
+        const tx = idb.transaction(store, "readonly"), req = tx.objectStore(store).getAll();
+        req.onsuccess = () => res(req.result || []); req.onerror = () => res([]);
+      } catch (e) { res([]) }
+    });
+
+    const idbPut = (store, val) => new Promise(res => {
+      if (!idb) { try { localStorage.setItem(store + ":" + val.id, JSON.stringify(val)) } catch (e) { } res(true); return }
+      try {
+        const tx = idb.transaction(store, "readwrite");
+        tx.objectStore(store).put(val);
+        tx.oncomplete = () => res(true); tx.onerror = () => res(false);
+      } catch (e) { res(false) }
+    });
+
+    const idbClear = store => new Promise(res => {
+      if (!idb) {
+        const pre = store + ":";
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const k = localStorage.key(i);
+          if (k.startsWith(pre)) localStorage.removeItem(k);
+        }
+        res(true); return;
+      }
+      try {
+        const tx = idb.transaction(store, "readwrite");
+        tx.objectStore(store).clear();
+        tx.oncomplete = () => res(true); tx.onerror = () => res(false);
+      } catch (e) { res(false) }
+    });
+
+    /* Simple reactive event bus */
+    const listeners = { reports: new Set(), teams: new Set(), settings: new Set() };
+    const notify = s => listeners[s] && listeners[s].forEach(cb => cb());
+
+    /* Fallback local storage DB interface */
+    const localDb = {
+      collection(col) {
+        return {
+          async onSnapshot(cb) {
+            listeners[col] = listeners[col] || new Set();
+            const refresh = async () => {
+              const docs = await idbGetAll(col);
+              cb({ docs: docs.map(d => ({ id: d.id, data: () => d })) });
+            };
+            listeners[col].add(refresh);
+            await refresh();
+          }
+        };
+      },
+      doc(path) {
+        const [col, id] = path.split("/");
+        return {
+          async get() {
+            const d = await idbGet(col, id);
+            return { exists: !!d, data: () => d };
+          },
+          async set(data) {
+            const row = { ...data, id };
+            await idbPut(col, row);
+            notify(col);
+            return row;
+          },
+          async onSnapshot(cb) {
+            listeners[col] = listeners[col] || new Set();
+            const refresh = async () => {
+              const d = await idbGet(col, id);
+              cb({ data: () => d });
+            };
+            listeners[col].add(refresh);
+            await refresh();
+          }
+        };
+      }
+    };
+
+    /* Local Assets storage (Base64 data URL) */
+    const localAssets = {
+      async upload(blob) {
+        return new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => {
+            const id = "img_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+            res({ id, url: r.result });
+          };
+          r.onerror = rej;
+          r.readAsDataURL(blob);
+        });
+      }
+    };
+
+    /* ---------- Initialization ---------- */
+    function tab(t) {
+      document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x.dataset.t == t));
+      ["dash", "field", "admin"].forEach(s => $("#" + s).classList.toggle("hide", s != t));
+      try { localStorage.setItem("py_tab", t) } catch (e) { }
+      scrollTo(0, 0);
+    }
+    document.querySelectorAll("nav button").forEach(b => b.onclick = () => tab(b.dataset.t));
+    $("#fday").innerHTML = Array.from({ length: DAYS }, (_, i) => `<option value="${i + 1}">Day ${i + 1}</option>`).join("");
+
+    async function initDefaultLogins() {
+      const existing = await idbGetAll("teams");
+      if (!existing || existing.length < TEAMS.length) {
+        for (const t of TEAMS) {
+          const u = "gir_" + t.id, p = t.id; // default password is team id (e.g. kodinar1)
+          const h = await sha(u + ":" + p);
+          await db.doc("teams/" + t.id).set({ name: t.n, user: u, pass: p, hash: h });
+        }
+      }
+      renderCredTable();
+    }
+
+    function updateTeamQuickSelect() {
+      const sel = $("#quickTeam");
+      if (!sel) return;
+      sel.innerHTML = `<option value="">-- Choose your team --</option>` +
+        TEAMS.map(t => {
+          const cred = teams[t.id];
+          const u = cred ? cred.user : ("gir_" + t.id);
+          const p = cred && cred.pass ? cred.pass : t.id;
+          return `<option value="${t.id}" data-u="${esc(u)}" data-p="${esc(p)}">${esc(t.n)} (${esc(u)})</option>`;
+        }).join("");
+      sel.onchange = () => {
+        const opt = sel.options[sel.selectedIndex];
+        if (opt && opt.value) {
+          $("#lu").value = opt.dataset.u || "";
+          $("#lp").v(async () => {
+            await openIDB();
+            logoImg = new Image();
+            logoImg.src = logoUrl;
+            $("#fd").value = today();
+
+            $("#hx").onclick = () => {
+              $("#hint").classList.add("hide");
+              try { localStorage.setItem("py_hint", "1") } catch (e) { }
+            };
+
+            try {
+              const t = localStorage.getItem("py_tab");
+              if (t) tab(t);
+              if (/Android|iPhone|iPad/i.test(navigator.userAgent) && !localStorage.getItem("py_hint")) {
+                $("#hint").classList.remove("hide");
+              }
+            } catch (e) { }
+
+            /* ---------- Supabase init ---------- */
+            const sbUrl = window.SUPABASE_URL || "";
+            const sbAnon = window.SUPABASE_ANON || "";
+            const useSupabase = sbUrl && sbAnon && !/PASTE/.test(sbUrl);
+
+            if (useSupabase) {
+              _supa = supabase.createClient(sbUrl, sbAnon);
+
+              /* ---- Asset upload to Supabase Storage ---- */
+              window._sbAssets = {
+                upload: async (blob) => {
+                  const ext = blob.type.includes("png") ? "png" : "jpeg";
+                  const name = "photos/" + Date.now() + "_" + Math.random().toString(36).slice(2, 8) + "." + ext;
+                  const { data, error } = await _supa.storage.from("photos").upload(name, blob, { contentType: blob.type, upsert: false });
+                  if (error) throw error;
+                  const { data: { publicUrl } } = _supa.storage.from("photos").getPublicUrl(name);
+                  return { id: name, url: publicUrl, sizeBytes: blob.size };
+                }
+              };
+
+              $("#liveBadge").textContent = "Cloud Live";
+              $("#fbStatusText").innerHTML = '<b style="color:var(--ok)">✓ Connected to Supabase</b>. Real-time sync across all devices is active.';
+
+              /* ---- Fetch all initial data ---- */
+              async function refreshReports() {
+                const { data, error } = await _supa.from("reports").select("*").order("day");
+                if (!error && data) {
+                  reports = data.map(d => ({ ...d, id: d.id || d.rid, photos: d.photos || [] }));
+                  $("#upd").textContent = "Updated " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+                  $("#liveBadge").className = "live";
+                  drawDash();
+                  drawMine();
+                }
+              }
+              async function refreshTeams() {
+                const { data, error } = await _supa.from("teams").select("*");
+                if (!error && data) {
+                  teams = Object.fromEntries(data.map(d => [d.id, d]));
+                  updateTeamQuickSelect();
+                  renderCredTable();
+                }
+              }
+              async function refreshSettings() {
+                const { data, error } = await _supa.from("settings").select("*").eq("id", "main").single();
+                if (!error && data && data.logo) {
+                  logoUrl = data.logo;
+                  logoImg = new Image(); logoImg.src = logoUrl;
+                  $("#hl").src = logoUrl;
+                }
+              }
+
+              await Promise.all([refreshReports(), refreshTeams(), refreshSettings()]);
+              await initDefaultLogins();
+
+              /* ---- Realtime subscriptions ---- */
+              _supa.channel("rt-reports")
+                .on("postgres_changes", { event: "*", schema: "public", table: "reports" }, () => refreshReports())
+                .subscribe();
+              _supa.channel("rt-teams")
+                .on("postgres_changes", { event: "*", schema: "public", table: "teams" }, () => refreshTeams())
+                .subscribe();
+              _supa.channel("rt-settings")
+                .on("postgres_changes", { event: "*", schema: "public", table: "settings" }, () => refreshSettings())
+                .subscribe();
+
+            } else {
+              /* ---- Offline / local-only fallback ---- */
+              $("#liveBadge").textContent = "Local / Offline Ready";
+              $("#fbStatusText").innerHTML = '<b>Running in Local Offline Mode (IndexedDB)</b>.<br><span class="mut">Paste your Supabase URL &amp; Anon key into <code>config.js</code> to enable real-time sync across devices.</span>';
+
+              const st = await idbGet("settings", "main");
+              if (st && st.logo) { logoUrl = st.logo; logoImg.src = logoUrl; $("#hl").src = logoUrl; }
+              await initDefaultLogins();
+
+              localDb.collection("reports").onSnapshot(s => {
+                reports = s.docs.map(d => ({ id: d.id, ...d.data() }));
+                $("#upd").textContent = "Updated " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+                drawDash(); drawMine();
+              });
+              localDb.collection("teams").onSnapshot(s => {
+                teams = Object.fromEntries(s.docs.map(d => [d.id, d.data()]));
+                updateTeamQuickSelect(); renderCredTable();
+              });
+              localDb.doc("settings/main").onSnapshot(s => {
+                const d = s.data() || {};
+                if (d.logo) { logoUrl = d.logo; logoImg = new Image(); logoImg.src = logoUrl; $("#hl").src = logoUrl; }
+              });
+            }
+
+            try {
+              const t = localStorage.getItem("py_me");
+              if (t && T(t)) { me = t; showForm() }
+            } catch (e) { }
+
+            drawDash();
+          })(); rm()
+        }
+      }catch (e) { }
+
+      drawDash();
+    };
+
+    addEventListener("offline", () => {
+      const l = $("#liveBadge"); if (l) { l.className = "live off"; l.textContent = "Offline" }
+      $("#upd").textContent = "Offline mode active (Local storage ready)";
+    });
+    addEventListener("online", () => {
+      const l = $("#liveBadge"); if (l) { l.className = "live"; l.textContent = isFirebase ? "Cloud Live" : "Active" }
+      toast("Back online — syncing");
+    });
+
+    /* ---------- Dashboard ---------- */
+    const rep = id => reports.filter(r => r.team_id == id).sort((a, b) => b.day - a.day);
+    const np = r => (r.photos || []).length;
+
+    function drawDash() {
+      let Rs = reports.filter(r => (!fT || r.taluka == fT) && (!fD || r.day == fD)), P = Rs.flatMap(r => (r.photos || []).map(p => ({ ...p, r })));
+      const schools = new Set(reports.map(r => (r.school || "").toLowerCase()).filter(Boolean)).size;
+      const act = TEAMS.filter(t => rep(t.id).length).length;
+      const md = Math.max(0, ...reports.map(r => +r.day || 0));
+      const tn = reports.reduce((n, r) => n + np(r), 0);
+
+      $("#dash").innerHTML = `
   <div class="grid k">
    <div class="card kpi"><b>${act}/${TEAMS.length}</b><span>Teams reporting</span></div>
    <div class="card kpi"><b>${NS}</b><span>Students</span></div>
    <div class="card kpi"><b>${schools}</b><span>Schools visited</span></div>
    <div class="card kpi"><b>${tn}</b><span>Photographs</span></div>
-   <div class="card kpi"><b>${md||"–"}</b><span>Latest day</span></div>
+   <div class="card kpi"><b>${md || "–"}</b><span>Latest day</span></div>
   </div>
-  ${TALUKAS.map(k=>{
-   const ts=TEAMS.filter(t=>t.t==k);
-   return`<h2>${k} <span class="mut">· ${ts.reduce((n,t)=>n+t.m.length,0)} students</span></h2>
-   <div class="grid c3">${ts.map(t=>{
-    const r=rep(t.id),l=r[0],ph=r.reduce((n,x)=>n+np(x),0);
-    return`<div class="card">
+  ${TALUKAS.map(k => {
+        const ts = TEAMS.filter(t => t.t == k);
+        return `<h2>${k} <span class="mut">· ${ts.reduce((n, t) => n + t.m.length, 0)} students</span></h2>
+   <div class="grid c3">${ts.map(t => {
+          const r = rep(t.id), l = r[0], ph = r.reduce((n, x) => n + np(x), 0);
+          return `<div class="card">
      <h3>${t.n}</h3>
-     <span class="tag ${l?"ok":""}">${l?"Day "+l.day+" reported":"No report yet"}</span>
+     <span class="tag ${l ? "ok" : ""}">${l ? "Day " + l.day + " reported" : "No report yet"}</span>
      <span class="tag">${r.length} day(s)</span>
-     <div class="bar"><i style="width:${Math.min(100,ph/Math.max(1,r.length*10)*100)}%"></i></div>
+     <div class="bar"><i style="width:${Math.min(100, ph / Math.max(1, r.length * 10) * 100)}%"></i></div>
      <div class="mut">${ph} photos</div>
-     ${l?`<div style="margin:6px 0"><b>${esc(l.school)}</b><br><span class="mut">${esc(l.address)}<br>${esc(l.cname)} ${esc(l.cphone)}</span></div>`:""}
-     <details data-t="${t.id}" ${openD.has(t.id)?"open":""}>
+     ${l ? `<div style="margin:6px 0"><b>${esc(l.school)}</b><br><span class="mut">${esc(l.address)}<br>${esc(l.cname)} ${esc(l.cphone)}</span></div>` : ""}
+     <details data-t="${t.id}" ${openD.has(t.id) ? "open" : ""}>
       <summary class="mut" style="cursor:pointer">Members (${t.m.length})</summary>
-      ${t.m.map(m=>{const[a,b]=m.split("|");return`<div class="mut">${esc(a)} · ${esc(b)}</div>`}).join("")}
+      ${t.m.map(m => { const [a, b] = m.split("|"); return `<div class="mut">${esc(a)} · ${esc(b)}</div>` }).join("")}
      </details>
     </div>`
-   }).join("")}</div>`
-  }).join("")}
+        }).join("")}</div>`
+      }).join("")}
   
   <h2>Day-wise reports</h2>
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
    <select id="ft" style="width:auto">
     <option value="">All talukas</option>
-    ${TALUKAS.map(k=>`<option ${k==fT?"selected":""} value="${k}">${k}</option>`).join("")}
+    ${TALUKAS.map(k => `<option ${k == fT ? "selected" : ""} value="${k}">${k}</option>`).join("")}
    </select>
    <select id="fdd" style="width:auto">
     <option value="">All days</option>
-    ${Array.from({length:DAYS},(_,i)=>`<option value="${i+1}" ${fD==i+1?"selected":""}>Day ${i+1}</option>`).join("")}
+    ${Array.from({ length: DAYS }, (_, i) => `<option value="${i + 1}" ${fD == i + 1 ? "selected" : ""}>Day ${i + 1}</option>`).join("")}
    </select>
    <button class="btn" id="xl">📥 Download Excel with Photos</button> <button class="btn alt" id="xlForm" style="font-size:13px;padding:8px 12px">📄 Excel Form (No Photos)</button>
   </div>
@@ -598,7 +1073,7 @@ function drawDash(){
   <div class="card tw">
    <table class="rt">
     <tr><th>Day</th><th>Date</th><th>Team</th><th>School / Place</th><th>Address</th><th>Contact</th><th>Number</th><th>Photos</th></tr>
-    ${Rs.slice().sort((a,b)=>a.day-b.day).map(r=>`
+    ${Rs.slice().sort((a, b) => a.day - b.day).map(r => `
      <tr>
       <td data-label="Day">Day ${r.day}</td>
       <td data-label="Date">${esc(r.date)}</td>
@@ -608,933 +1083,959 @@ function drawDash(){
       <td data-label="Contact">${esc(r.cname)}</td>
       <td data-label="Number">${esc(r.cphone)}</td>
       <td data-label="Photos">${np(r)}/10</td>
-     </tr>`).join("")||'<tr><td colspan="8" class="mut" style="text-align:center;padding:16px">No reports recorded yet. Go to Team entry to record a day!</td></tr>'}
+     </tr>`).join("") || '<tr><td colspan="8" class="mut" style="text-align:center;padding:16px">No reports recorded yet. Go to Team entry to record a day!</td></tr>'}
    </table>
   </div>
   
   <h2>Photo gallery (${P.length} photos)</h2>
-  <div class="ph">${P.slice(-48).reverse().map(p=>`<img src="${esc(p.url)}" loading="lazy" alt="${esc(p.r.school)}" data-u="${esc(p.url)}">`).join("")||'<span class="mut">No photos yet. Use Team entry to snap photos.</span>'}</div>
+  <div class="ph">${P.slice(-48).reverse().map(p => `<img src="${esc(p.url)}" loading="lazy" alt="${esc(p.r.school)}" data-u="${esc(p.url)}">`).join("") || '<span class="mut">No photos yet. Use Team entry to snap photos.</span>'}</div>
  `;
 
- $("#ft").onchange=e=>{fT=e.target.value;drawDash()};
- $("#fdd").onchange=e=>{fD=e.target.value;drawDash()};
- $("#xl").onclick=excelWithPhotos;
- $("#xlForm").onclick=excelFormOnly;
- 
- document.querySelectorAll("#dash .ph img").forEach(i=>i.onclick=()=>{
-  $("#lbi").src=i.dataset.u;$("#lb").style.display="flex";
- });
- document.querySelectorAll("#dash details").forEach(d=>d.ontoggle=()=>d.open?openD.add(d.dataset.t):openD.delete(d.dataset.t));
-}
+      $("#ft").onchange = e => { fT = e.target.value; drawDash() };
+      $("#fdd").onchange = e => { fD = e.target.value; drawDash() };
+      $("#xl").onclick = excelWithPhotos;
+      $("#xlForm").onclick = excelFormOnly;
 
-/* ---------- Photo Buffer & Dimension Helper ---------- */
-async function getPhotoBuffer(url){
- if(!url)return null;
- try{
-  if(url.startsWith("data:")){
-   const commaIdx=url.indexOf(",");
-   if(commaIdx===-1)return null;
-   const head=url.slice(0,commaIdx),b64=url.slice(commaIdx+1);
-   const ext=head.includes("png")?"png":"jpeg";
-   const bin=atob(b64),len=bin.length,bytes=new Uint8Array(len);
-   for(let i=0;i<len;i++)bytes[i]=bin.charCodeAt(i);
-   const dim=await new Promise(res=>{
-    const img=new Image();
-    img.onload=()=>res({w:img.naturalWidth||640,h:img.naturalHeight||480});
-    img.onerror=()=>res({w:640,h:480});
-    img.src=url;
-   });
-   return {buffer:bytes.buffer,extension:ext,w:dim.w,h:dim.h};
-  }else{
-   const resp=await fetch(url);
-   const blob=await resp.blob();
-   const buffer=await blob.arrayBuffer();
-   const ext=blob.type.includes("png")?"png":"jpeg";
-   const dim=await new Promise(res=>{
-    const img=new Image();
-    img.onload=()=>res({w:img.naturalWidth||640,h:img.naturalHeight||480});
-    img.onerror=()=>res({w:640,h:480});
-    img.src=url;
-   });
-   return {buffer,extension:ext,w:dim.w,h:dim.h};
-  }
- }catch(e){
-  console.warn("Could not load image buffer for Excel:", e);
-  return null;
- }
-}
-
-/* ---------- 1. Excel Export WITH Embedded Photos ---------- */
-async function excelWithPhotos(){
- if(typeof ExcelJS==="undefined"){
-  toast("Excel library is loading, please try again in a moment.");return;
- }
- const rs=reports.filter(r=>(!fT||r.taluka==fT)&&(!fD||r.day==fD)).sort((a,b)=>a.day-b.day||a.team.localeCompare(b.team));
- const totalPhotos=rs.reduce((n,r)=>n+np(r),0);
- toast("Preparing Excel with photos… 0/"+totalPhotos);
-
- const wb=new ExcelJS.Workbook();
- wb.creator="Gujarat Vidyapith - Poshan Yatra 2026";
- wb.created=new Date();
-
- const hd=(w)=>{
-  const r=w.getRow(1);
-  r.font={bold:true,color:{argb:"FFFFFFFF"},size:11};
-  r.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF8B1E2D"}};
-  r.alignment={vertical:"middle",horizontal:"center",wrapText:true};
-  r.height=28;
-  w.views=[{state:"frozen",ySplit:1}];
- };
-
- // Sheet 1: Summary
- const s1=wb.addWorksheet("Summary");
- s1.columns=[
-  {header:"Group",key:"group",width:22},
-  {header:"Taluka",key:"taluka",width:14},
-  {header:"Team",key:"team",width:20},
-  {header:"Students",key:"students",width:11},
-  {header:"Days Reported",key:"days",width:14},
-  {header:"Photos Taken",key:"photos",width:14},
-  {header:"Last School / Place",key:"school",width:32}
- ];
- TEAMS.forEach(t=>{
-  const r=rep(t.id);
-  const row=s1.addRow({
-   group:MAIN,
-   taluka:t.t,
-   team:t.n,
-   students:t.m.length,
-   days:r.length,
-   photos:r.reduce((n,x)=>n+np(x),0),
-   school:r[0]?r[0].school:""
-  });
-  row.alignment={vertical:"middle"};
- });
- hd(s1);
-
- // Sheet 2: Day-wise Reports (with thumbnail columns)
- const photoCols=Array.from({length:10},(_,i)=>"Photo "+(i+1));
- const s2Headers=["Day","Date","Taluka","Team","School / Place","Address","Contact Person","Contact Number","Activity 1","Activity 2","Activity 3","Activity 4","Activity 5",...photoCols,"GPS"];
- const s2=wb.addWorksheet("Day-wise Reports");
- s2.columns=s2Headers.map((h,i)=>({
-  header:h,
-  width:i>=13&&i<23?22:i>=8&&i<13?26:16
- }));
- hd(s2);
-
- // Sheet 3: Photographs Gallery (High-Res Photos Sheet)
- const s3=wb.addWorksheet("Photographs Gallery");
- s3.columns=[
-  {header:"Day",width:10},
-  {header:"Team",width:18},
-  {header:"School / Place",width:28},
-  {header:"Contact Person",width:20},
-  {header:"Contact Number",width:16},
-  {header:"Photo #",width:8},
-  {header:"Time & GPS",width:28},
-  {header:"Photograph",width:50}
- ];
- hd(s3);
-
- let processed=0,failCount=0;
-
- for(const r of rs){
-  const acts=r.acts||[];
-  const row=s2.addRow([
-   "Day "+r.day,r.date||"",r.taluka||"",r.team||"",r.school||"",r.address||"",
-   r.cname||"",r.cphone||"",acts[0]||"",acts[1]||"",acts[2]||"",acts[3]||"",acts[4]||"",
-   ...Array(10).fill(""),r.gps||""
-  ]);
-  row.alignment={vertical:"top",wrapText:true};
-
-  const dayPhotos=r.photos||[];
-  if(dayPhotos.length>0)row.height=95; // Room for thumbnails
-
-  for(let i=0;i<dayPhotos.length;i++){
-   const p=dayPhotos[i];
-   const imgData=await getPhotoBuffer(p.url);
-   processed++;
-   if(totalPhotos>0)toast("Processing photo "+processed+"/"+totalPhotos);
-   
-   if(imgData&&imgData.buffer){
-    try{
-     const imgId=wb.addImage({
-      buffer:imgData.buffer,
-      extension:imgData.extension
-     });
-     
-     // 1. Add thumbnail to Day-wise sheet
-     const thumbHeight=Math.round(110*imgData.h/imgData.w);
-     s2.addImage(imgId,{
-      tl:{col:13+i+0.05,row:row.number-1+0.05},
-      ext:{width:140,height:Math.min(105,thumbHeight)}
-     });
-
-     // 2. Add large photo to Photographs Gallery sheet
-     const galRow=s3.addRow([
-      "Day "+r.day,r.team||"",r.school||"",r.cname||"",r.cphone||"",
-      (i+1),((p.time||"")+" · "+(p.gps||"")),""
-     ]);
-     galRow.alignment={vertical:"middle",wrapText:true};
-     const galHeight=Math.round(240*imgData.h/imgData.w);
-     galRow.height=Math.max(160,galHeight*0.75+10);
-     s3.addImage(imgId,{
-      tl:{col:7.05,row:galRow.number-1+0.05},
-      ext:{width:320,height:Math.min(240,galHeight)}
-     });
-    }catch(err){
-     console.warn("Failed embedding image:", err);
-     failCount++;
+      document.querySelectorAll("#dash .ph img").forEach(i => i.onclick = () => {
+        $("#lbi").src = i.dataset.u; $("#lb").style.display = "flex";
+      });
+      document.querySelectorAll("#dash details").forEach(d => d.ontoggle = () => d.open ? openD.add(d.dataset.t) : openD.delete(d.dataset.t));
     }
-   }else{
-    failCount++;
-   }
-  }
- }
 
- // Sheet 4: Student Roster
- const s4=wb.addWorksheet("Student Roster");
- s4.columns=[
-  {header:"Taluka",width:14},
-  {header:"Team",width:20},
-  {header:"#",width:6},
-  {header:"Student Name",width:32},
-  {header:"Programme / Department",width:26}
- ];
- TEAMS.forEach(t=>t.m.forEach((m,i)=>{
-  const[n,p]=m.split("|");
-  s4.addRow([t.t,t.n,i+1,n,p]);
- }));
- hd(s4);
+    /* ---------- Photo Buffer & Dimension Helper ---------- */
+    async function getPhotoBuffer(url) {
+      if (!url) return null;
+      try {
+        if (url.startsWith("data:")) {
+          const commaIdx = url.indexOf(",");
+          if (commaIdx === -1) return null;
+          const head = url.slice(0, commaIdx), b64 = url.slice(commaIdx + 1);
+          const ext = head.includes("png") ? "png" : "jpeg";
+          const bin = atob(b64), len = bin.length, bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++)bytes[i] = bin.charCodeAt(i);
+          const dim = await new Promise(res => {
+            const img = new Image();
+            img.onload = () => res({ w: img.naturalWidth || 640, h: img.naturalHeight || 480 });
+            img.onerror = () => res({ w: 640, h: 480 });
+            img.src = url;
+          });
+          return { buffer: bytes.buffer, extension: ext, w: dim.w, h: dim.h };
+        } else {
+          const resp = await fetch(url);
+          const blob = await resp.blob();
+          const buffer = await blob.arrayBuffer();
+          const ext = blob.type.includes("png") ? "png" : "jpeg";
+          const dim = await new Promise(res => {
+            const img = new Image();
+            img.onload = () => res({ w: img.naturalWidth || 640, h: img.naturalHeight || 480 });
+            img.onerror = () => res({ w: 640, h: 480 });
+            img.src = url;
+          });
+          return { buffer, extension: ext, w: dim.w, h: dim.h };
+        }
+      } catch (e) {
+        console.warn("Could not load image buffer for Excel:", e);
+        return null;
+      }
+    }
 
- wb.views=[{activeTab:1,firstSheet:0,visibility:"visible",x:0,y:0,width:20000,height:10000}];
- 
- try{
-  const buffer=await wb.xlsx.writeBuffer();
-  const blob=new Blob([buffer],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-  const filename="PoshanYatra_G-051_GirSomnath_WithPhotos_"+today()+".xlsx";
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download=filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
-  toast(failCount?"Excel with photos downloaded! ("+failCount+" photo could not be embedded)":"Excel with photos downloaded successfully! ✓");
- }catch(e){
-  toast("Download failed: "+(e.message||e));
- }
-}
+    /* ---------- 1. Excel Export WITH Embedded Photos ---------- */
+    async function excelWithPhotos() {
+      if (typeof ExcelJS === "undefined") {
+        toast("Excel library is loading, please try again in a moment."); return;
+      }
+      const rs = reports.filter(r => (!fT || r.taluka == fT) && (!fD || r.day == fD)).sort((a, b) => a.day - b.day || a.team.localeCompare(b.team));
+      const totalPhotos = rs.reduce((n, r) => n + np(r), 0);
+      toast("Preparing Excel with photos… 0/" + totalPhotos);
 
-/* ---------- 2. Excel Form Only (No Photos, Instant) ---------- */
-async function excelFormOnly(){
- if(typeof ExcelJS==="undefined"){
-  toast("Excel library is loading, please try again in a moment.");return;
- }
- toast("Generating Excel form…");
- const rs=reports.filter(r=>(!fT||r.taluka==fT)&&(!fD||r.day==fD)).sort((a,b)=>a.day-b.day||a.team.localeCompare(b.team));
+      const wb = new ExcelJS.Workbook();
+      wb.creator = "Gujarat Vidyapith - Poshan Yatra 2026";
+      wb.created = new Date();
 
- const wb=new ExcelJS.Workbook();
- wb.creator="Gujarat Vidyapith - Poshan Yatra 2026";
- wb.created=new Date();
+      const hd = (w) => {
+        const r = w.getRow(1);
+        r.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
+        r.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF8B1E2D" } };
+        r.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+        r.height = 28;
+        w.views = [{ state: "frozen", ySplit: 1 }];
+      };
 
- const hd=(w)=>{
-  const r=w.getRow(1);
-  r.font={bold:true,color:{argb:"FFFFFFFF"},size:11};
-  r.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF8B1E2D"}};
-  r.alignment={vertical:"middle",horizontal:"center",wrapText:true};
-  r.height=28;
-  w.views=[{state:"frozen",ySplit:1}];
- };
+      // Sheet 1: Summary
+      const s1 = wb.addWorksheet("Summary");
+      s1.columns = [
+        { header: "Group", key: "group", width: 22 },
+        { header: "Taluka", key: "taluka", width: 14 },
+        { header: "Team", key: "team", width: 20 },
+        { header: "Students", key: "students", width: 11 },
+        { header: "Days Reported", key: "days", width: 14 },
+        { header: "Photos Taken", key: "photos", width: 14 },
+        { header: "Last School / Place", key: "school", width: 32 }
+      ];
+      TEAMS.forEach(t => {
+        const r = rep(t.id);
+        const row = s1.addRow({
+          group: MAIN,
+          taluka: t.t,
+          team: t.n,
+          students: t.m.length,
+          days: r.length,
+          photos: r.reduce((n, x) => n + np(x), 0),
+          school: r[0] ? r[0].school : ""
+        });
+        row.alignment = { vertical: "middle" };
+      });
+      hd(s1);
 
- // Sheet 1: Summary Form
- const s1=wb.addWorksheet("Summary");
- s1.columns=[
-  {header:"Group",key:"group",width:22},
-  {header:"Taluka",key:"taluka",width:14},
-  {header:"Team",key:"team",width:20},
-  {header:"Students",key:"students",width:11},
-  {header:"Days Reported",key:"days",width:14},
-  {header:"Photos Taken",key:"photos",width:14},
-  {header:"Last School / Place",key:"school",width:32}
- ];
- TEAMS.forEach(t=>{
-  const r=rep(t.id);
-  const row=s1.addRow({
-   group:MAIN,
-   taluka:t.t,
-   team:t.n,
-   students:t.m.length,
-   days:r.length,
-   photos:r.reduce((n,x)=>n+np(x),0),
-   school:r[0]?r[0].school:""
-  });
-  row.alignment={vertical:"middle"};
- });
- hd(s1);
+      // Sheet 2: Day-wise Reports (with thumbnail columns)
+      const photoCols = Array.from({ length: 10 }, (_, i) => "Photo " + (i + 1));
+      const s2Headers = ["Day", "Date", "Taluka", "Team", "School / Place", "Address", "Contact Person", "Contact Number", "Activity 1", "Activity 2", "Activity 3", "Activity 4", "Activity 5", ...photoCols, "GPS"];
+      const s2 = wb.addWorksheet("Day-wise Reports");
+      s2.columns = s2Headers.map((h, i) => ({
+        header: h,
+        width: i >= 13 && i < 23 ? 22 : i >= 8 && i < 13 ? 26 : 16
+      }));
+      hd(s2);
 
- // Sheet 2: Day-wise Report Form
- const s2=wb.addWorksheet("Day-wise Form");
- s2.columns=[
-  {header:"Day",key:"day",width:10},
-  {header:"Date",key:"date",width:13},
-  {header:"Taluka",key:"taluka",width:14},
-  {header:"Team",key:"team",width:18},
-  {header:"School / Place",key:"school",width:30},
-  {header:"Village / Address",key:"address",width:26},
-  {header:"Contact Person",key:"cname",width:22},
-  {header:"Contact Number",key:"cphone",width:16},
-  {header:"Activity 1",key:"act1",width:26},
-  {header:"Activity 2",key:"act2",width:26},
-  {header:"Activity 3",key:"act3",width:26},
-  {header:"Activity 4",key:"act4",width:26},
-  {header:"Activity 5",key:"act5",width:26},
-  {header:"Photos Count",key:"photos",width:14},
-  {header:"GPS Location",key:"gps",width:24}
- ];
- 
- rs.forEach(r=>{
-  const a=r.acts||[];
-  const row=s2.addRow({
-   day:"Day "+r.day,
-   date:r.date||"",
-   taluka:r.taluka||"",
-   team:r.team||"",
-   school:r.school||"",
-   address:r.address||"",
-   cname:r.cname||"",
-   cphone:r.cphone||"",
-   act1:a[0]||"",
-   act2:a[1]||"",
-   act3:a[2]||"",
-   act4:a[3]||"",
-   act5:a[4]||"",
-   photos:np(r)+"/10",
-   gps:r.gps||""
-  });
-  row.alignment={vertical:"middle",wrapText:true};
- });
- hd(s2);
+      // Sheet 3: Photographs Gallery (High-Res Photos Sheet)
+      const s3 = wb.addWorksheet("Photographs Gallery");
+      s3.columns = [
+        { header: "Day", width: 10 },
+        { header: "Team", width: 18 },
+        { header: "School / Place", width: 28 },
+        { header: "Contact Person", width: 20 },
+        { header: "Contact Number", width: 16 },
+        { header: "Photo #", width: 8 },
+        { header: "Time & GPS", width: 28 },
+        { header: "Photograph", width: 50 }
+      ];
+      hd(s3);
 
- // Sheet 3: Student Roster
- const s3=wb.addWorksheet("Student Roster");
- s3.columns=[
-  {header:"Taluka",key:"taluka",width:14},
-  {header:"Team",key:"team",width:20},
-  {header:"#",key:"num",width:6},
-  {header:"Student Name",key:"name",width:32},
-  {header:"Programme / Department",key:"prog",width:26}
- ];
- TEAMS.forEach(t=>t.m.forEach((m,i)=>{
-  const[n,p]=m.split("|");
-  const row=s3.addRow({
-   taluka:t.t,
-   team:t.n,
-   num:i+1,
-   name:n,
-   prog:p
-  });
-  row.alignment={vertical:"middle"};
- }));
- hd(s3);
+      let processed = 0, failCount = 0;
 
- wb.views=[{activeTab:1,firstSheet:0,visibility:"visible",x:0,y:0,width:20000,height:10000}];
- 
- try{
-  const buffer=await wb.xlsx.writeBuffer();
-  const blob=new Blob([buffer],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-  const filename="PoshanYatra_Form_G-051_GirSomnath_"+today()+".xlsx";
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download=filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
-  toast("Excel form downloaded successfully! ✓");
- }catch(e){
-  toast("Download failed: "+(e.message||e));
- }
-}
+      for (const r of rs) {
+        const acts = r.acts || [];
+        const row = s2.addRow([
+          "Day " + r.day, r.date || "", r.taluka || "", r.team || "", r.school || "", r.address || "",
+          r.cname || "", r.cphone || "", acts[0] || "", acts[1] || "", acts[2] || "", acts[3] || "", acts[4] || "",
+          ...Array(10).fill(""), r.gps || ""
+        ]);
+        row.alignment = { vertical: "top", wrapText: true };
 
-/* ---------- Login & Entry ---------- */
-$("#lgo").onclick=async()=>{
- const u=$("#lu").value.trim().toLowerCase(),p=$("#lp").value;
- const h=await sha(u+":"+p);
- const id=Object.keys(teams).find(k=>{
-  const item=teams[k];
-  return (item.user==u&&(item.hash==h||item.pass==p))&&T(k);
- });
- if(!id){
-  $("#lerr").textContent="Wrong username or password";
-  return;
- }
- $("#lerr").textContent="";
- me=id;
- try{localStorage.setItem("py_me",id)}catch(e){}
- showForm();
-};
+        const dayPhotos = r.photos || [];
+        if (dayPhotos.length > 0) row.height = 95; // Room for thumbnails
 
-$("#lout").onclick=()=>{
- me=null;
- try{localStorage.removeItem("py_me")}catch(e){}
- $("#form").classList.add("hide");
- $("#login").classList.remove("hide");
-};
+        for (let i = 0; i < dayPhotos.length; i++) {
+          const p = dayPhotos[i];
+          const imgData = await getPhotoBuffer(p.url);
+          processed++;
+          if (totalPhotos > 0) toast("Processing photo " + processed + "/" + totalPhotos);
 
-function showForm(){
- $("#login").classList.add("hide");
- $("#form").classList.remove("hide");
- const t=T(me);
- $("#who").textContent=MAIN+" · "+t.n;
- $("#mem").textContent="Members: "+t.m.map(m=>m.split("|")[0]).join(", ");
- 
- if(navigator.geolocation){
-  navigator.geolocation.watchPosition(p=>{
-   pos=p.coords;
-   $("#gpsl").textContent="📍 GPS: "+pos.latitude.toFixed(5)+", "+pos.longitude.toFixed(5);
-  },()=>{
-   $("#gpsl").textContent="GPS not available — please ensure location is turned on or type address.";
-  },{enableHighAccuracy:true,timeout:10000});
- }
- loadCur();
-}
+          if (imgData && imgData.buffer) {
+            try {
+              const imgId = wb.addImage({
+                buffer: imgData.buffer,
+                extension: imgData.extension
+              });
 
-const rid=()=>me+"_d"+$("#fday").value;
+              // 1. Add thumbnail to Day-wise sheet
+              const thumbHeight = Math.round(110 * imgData.h / imgData.w);
+              s2.addImage(imgId, {
+                tl: { col: 13 + i + 0.05, row: row.number - 1 + 0.05 },
+                ext: { width: 140, height: Math.min(105, thumbHeight) }
+              });
 
-async function loadCur(){
- const s=await db.doc("reports/"+rid()).get();
- const d=s.exists?s.data():null;
- cur=d||{photos:[]};
- cur.photos=cur.photos||[];
- 
- $("#fs").value=d?d.school||"":"";
- $("#fp").value=d?d.address||"":"";
- $("#fpn").value=d?d.cname||"":"";
- $("#fpc").value=d?d.cphone||"":"";
- document.querySelectorAll(".act").forEach((a,i)=>a.value=d&&d.acts?d.acts[i]||"":"");
- if(d&&d.date)$("#fd").value=d.date;
- 
- if(!d){
-  try{
-   const k=JSON.parse(localStorage.getItem("py_draft_"+rid())||"null");
-   if(k){
-    $("#fs").value=k[0]||"";$("#fp").value=k[1]||"";$("#fpn").value=k[2]||"";$("#fpc").value=k[3]||"";
-    document.querySelectorAll(".act").forEach((a,i)=>a.value=k[4]&&k[4][i]||"");
-   }
-  }catch(e){}
- }
- drawMine();
-}
-$("#fday").onchange=loadCur;
+              // 2. Add large photo to Photographs Gallery sheet
+              const galRow = s3.addRow([
+                "Day " + r.day, r.team || "", r.school || "", r.cname || "", r.cphone || "",
+                (i + 1), ((p.time || "") + " · " + (p.gps || "")), ""
+              ]);
+              galRow.alignment = { vertical: "middle", wrapText: true };
+              const galHeight = Math.round(240 * imgData.h / imgData.w);
+              galRow.height = Math.max(160, galHeight * 0.75 + 10);
+              s3.addImage(imgId, {
+                tl: { col: 7.05, row: galRow.number - 1 + 0.05 },
+                ext: { width: 320, height: Math.min(240, galHeight) }
+              });
+            } catch (err) {
+              console.warn("Failed embedding image:", err);
+              failCount++;
+            }
+          } else {
+            failCount++;
+          }
+        }
+      }
 
-$("#form").addEventListener("input",()=>{
- if(!me)return;
- try{
-  localStorage.setItem("py_draft_"+rid(),JSON.stringify([
-   $("#fs").value,$("#fp").value,$("#fpn").value,$("#fpc").value,
-   [...document.querySelectorAll(".act")].map(a=>a.value)
-  ]));
- }catch(e){}
-});
+      // Sheet 4: Student Roster
+      const s4 = wb.addWorksheet("Student Roster");
+      s4.columns = [
+        { header: "Taluka", width: 14 },
+        { header: "Team", width: 20 },
+        { header: "#", width: 6 },
+        { header: "Student Name", width: 32 },
+        { header: "Programme / Department", width: 26 }
+      ];
+      TEAMS.forEach(t => t.m.forEach((m, i) => {
+        const [n, p] = m.split("|");
+        s4.addRow([t.t, t.n, i + 1, n, p]);
+      }));
+      hd(s4);
 
-async function saveRep(){
- const t=T(me);
- const d={
-  group:MAIN,team_id:me,taluka:t.t,team:t.n,day:+$("#fday").value,date:$("#fd").value,
-  school:$("#fs").value.trim(),address:$("#fp").value.trim(),
-  cname:$("#fpn").value.trim(),cphone:$("#fpc").value.trim(),
-  acts:[...document.querySelectorAll(".act")].map(a=>a.value.trim()),
-  gps:pos?pos.latitude.toFixed(5)+","+pos.longitude.toFixed(5):(cur.gps||""),
-  photos:cur.photos
- };
- await db.doc("reports/"+rid()).set(d);
- return d;
-}
+      wb.views = [{ activeTab: 1, firstSheet: 0, visibility: "visible", x: 0, y: 0, width: 20000, height: 10000 }];
 
-$("#save").onclick=async()=>{
- try{
-  await saveRep();
-  $("#sv").textContent="Saved ✓";
-  toast("Report saved successfully!");
-  setTimeout(()=>$("#sv").textContent="",3000);
- }catch(e){
-  $("#sv").textContent="Could not save: "+(e.message||e);
- }
-};
+      try {
+        const buffer = await wb.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const filename = "PoshanYatra_G-051_GirSomnath_WithPhotos_" + today() + ".xlsx";
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        toast(failCount ? "Excel with photos downloaded! (" + failCount + " photo could not be embedded)" : "Excel with photos downloaded successfully! ✓");
+      } catch (e) {
+        toast("Download failed: " + (e.message || e));
+      }
+    }
 
-function drawMine(){
- if(!me)return;
- $("#pc").textContent=cur.photos.length+"/10 today";
- $("#myph").innerHTML=cur.photos.map((p,i)=>`
+    /* ---------- 2. Excel Form Only (No Photos, Instant) ---------- */
+    async function excelFormOnly() {
+      if (typeof ExcelJS === "undefined") {
+        toast("Excel library is loading, please try again in a moment."); return;
+      }
+      toast("Generating Excel form…");
+      const rs = reports.filter(r => (!fT || r.taluka == fT) && (!fD || r.day == fD)).sort((a, b) => a.day - b.day || a.team.localeCompare(b.team));
+
+      const wb = new ExcelJS.Workbook();
+      wb.creator = "Gujarat Vidyapith - Poshan Yatra 2026";
+      wb.created = new Date();
+
+      const hd = (w) => {
+        const r = w.getRow(1);
+        r.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
+        r.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF8B1E2D" } };
+        r.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+        r.height = 28;
+        w.views = [{ state: "frozen", ySplit: 1 }];
+      };
+
+      // Sheet 1: Summary Form
+      const s1 = wb.addWorksheet("Summary");
+      s1.columns = [
+        { header: "Group", key: "group", width: 22 },
+        { header: "Taluka", key: "taluka", width: 14 },
+        { header: "Team", key: "team", width: 20 },
+        { header: "Students", key: "students", width: 11 },
+        { header: "Days Reported", key: "days", width: 14 },
+        { header: "Photos Taken", key: "photos", width: 14 },
+        { header: "Last School / Place", key: "school", width: 32 }
+      ];
+      TEAMS.forEach(t => {
+        const r = rep(t.id);
+        const row = s1.addRow({
+          group: MAIN,
+          taluka: t.t,
+          team: t.n,
+          students: t.m.length,
+          days: r.length,
+          photos: r.reduce((n, x) => n + np(x), 0),
+          school: r[0] ? r[0].school : ""
+        });
+        row.alignment = { vertical: "middle" };
+      });
+      hd(s1);
+
+      // Sheet 2: Day-wise Report Form
+      const s2 = wb.addWorksheet("Day-wise Form");
+      s2.columns = [
+        { header: "Day", key: "day", width: 10 },
+        { header: "Date", key: "date", width: 13 },
+        { header: "Taluka", key: "taluka", width: 14 },
+        { header: "Team", key: "team", width: 18 },
+        { header: "School / Place", key: "school", width: 30 },
+        { header: "Village / Address", key: "address", width: 26 },
+        { header: "Contact Person", key: "cname", width: 22 },
+        { header: "Contact Number", key: "cphone", width: 16 },
+        { header: "Activity 1", key: "act1", width: 26 },
+        { header: "Activity 2", key: "act2", width: 26 },
+        { header: "Activity 3", key: "act3", width: 26 },
+        { header: "Activity 4", key: "act4", width: 26 },
+        { header: "Activity 5", key: "act5", width: 26 },
+        { header: "Photos Count", key: "photos", width: 14 },
+        { header: "GPS Location", key: "gps", width: 24 }
+      ];
+
+      rs.forEach(r => {
+        const a = r.acts || [];
+        const row = s2.addRow({
+          day: "Day " + r.day,
+          date: r.date || "",
+          taluka: r.taluka || "",
+          team: r.team || "",
+          school: r.school || "",
+          address: r.address || "",
+          cname: r.cname || "",
+          cphone: r.cphone || "",
+          act1: a[0] || "",
+          act2: a[1] || "",
+          act3: a[2] || "",
+          act4: a[3] || "",
+          act5: a[4] || "",
+          photos: np(r) + "/10",
+          gps: r.gps || ""
+        });
+        row.alignment = { vertical: "middle", wrapText: true };
+      });
+      hd(s2);
+
+      // Sheet 3: Student Roster
+      const s3 = wb.addWorksheet("Student Roster");
+      s3.columns = [
+        { header: "Taluka", key: "taluka", width: 14 },
+        { header: "Team", key: "team", width: 20 },
+        { header: "#", key: "num", width: 6 },
+        { header: "Student Name", key: "name", width: 32 },
+        { header: "Programme / Department", key: "prog", width: 26 }
+      ];
+      TEAMS.forEach(t => t.m.forEach((m, i) => {
+        const [n, p] = m.split("|");
+        const row = s3.addRow({
+          taluka: t.t,
+          team: t.n,
+          num: i + 1,
+          name: n,
+          prog: p
+        });
+        row.alignment = { vertical: "middle" };
+      }));
+      hd(s3);
+
+      wb.views = [{ activeTab: 1, firstSheet: 0, visibility: "visible", x: 0, y: 0, width: 20000, height: 10000 }];
+
+      try {
+        const buffer = await wb.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const filename = "PoshanYatra_Form_G-051_GirSomnath_" + today() + ".xlsx";
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        toast("Excel form downloaded successfully! ✓");
+      } catch (e) {
+        toast("Download failed: " + (e.message || e));
+      }
+    }
+
+    /* ---------- Login & Entry ---------- */
+    $("#lgo").onclick = async () => {
+      const u = $("#lu").value.trim().toLowerCase(), p = $("#lp").value;
+      const h = await sha(u + ":" + p);
+      const id = Object.keys(teams).find(k => {
+        const item = teams[k];
+        return (item.user == u && (item.hash == h || item.pass == p)) && T(k);
+      });
+      if (!id) {
+        $("#lerr").textContent = "Wrong username or password";
+        return;
+      }
+      $("#lerr").textContent = "";
+      me = id;
+      try { localStorage.setItem("py_me", id) } catch (e) { }
+      showForm();
+    };
+
+    $("#lout").onclick = () => {
+      me = null;
+      try { localStorage.removeItem("py_me") } catch (e) { }
+      $("#form").classList.add("hide");
+      $("#login").classList.remove("hide");
+    };
+
+    function showForm() {
+      $("#login").classList.add("hide");
+      $("#form").classList.remove("hide");
+      const t = T(me);
+      $("#who").textContent = MAIN + " · " + t.n;
+      $("#mem").textContent = "Members: " + t.m.map(m => m.split("|")[0]).join(", ");
+
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(p => {
+          pos = p.coords;
+          $("#gpsl").textContent = "📍 GPS: " + pos.latitude.toFixed(5) + ", " + pos.longitude.toFixed(5);
+        }, () => {
+          $("#gpsl").textContent = "GPS not available — please ensure location is turned on or type address.";
+        }, { enableHighAccuracy: true, timeout: 10000 });
+      }
+      loadCur();
+    }
+
+    const rid = () => me + "_d" + $("#fday").value;
+
+    async function loadCur() {
+      let d = null;
+      if (_supa) {
+        const { data } = await _supa.from("reports").select("*").eq("id", rid()).maybeSingle();
+        d = data || null;
+      } else {
+        const s = await localDb.doc("reports/" + rid()).get();
+        d = s.exists ? s.data() : null;
+      }
+      cur = d || { photos: [] };
+      cur.photos = cur.photos || [];
+
+      $("#fs").value = d ? d.school || "" : "";
+      $("#fp").value = d ? d.address || "" : "";
+      $("#fpn").value = d ? d.cname || "" : "";
+      $("#fpc").value = d ? d.cphone || "" : "";
+      document.querySelectorAll(".act").forEach((a, i) => a.value = d && d.acts ? d.acts[i] || "" : "");
+      if (d && d.date) $("#fd").value = d.date;
+
+      if (!d) {
+        try {
+          const k = JSON.parse(localStorage.getItem("py_draft_" + rid()) || "null");
+          if (k) {
+            $("#fs").value = k[0] || ""; $("#fp").value = k[1] || ""; $("#fpn").value = k[2] || ""; $("#fpc").value = k[3] || "";
+            document.querySelectorAll(".act").forEach((a, i) => a.value = k[4] && k[4][i] || "");
+          }
+        } catch (e) { }
+      }
+      drawMine();
+    }
+    $("#fday").onchange = loadCur;
+
+    $("#form").addEventListener("input", () => {
+      if (!me) return;
+      try {
+        localStorage.setItem("py_draft_" + rid(), JSON.stringify([
+          $("#fs").value, $("#fp").value, $("#fpn").value, $("#fpc").value,
+          [...document.querySelectorAll(".act")].map(a => a.value)
+        ]));
+      } catch (e) { }
+    });
+
+    async function saveRep() {
+      const t = T(me);
+      const d = {
+        group: MAIN, team_id: me, taluka: t.t, team: t.n, day: +$("#fday").value, date: $("#fd").value,
+        school: $("#fs").value.trim(), address: $("#fp").value.trim(),
+        cname: $("#fpn").value.trim(), cphone: $("#fpc").value.trim(),
+        acts: [...document.querySelectorAll(".act")].map(a => a.value.trim()),
+        gps: pos ? pos.latitude.toFixed(5) + "," + pos.longitude.toFixed(5) : (cur.gps || ""),
+        photos: cur.photos
+      };
+      if (_supa) {
+        await _supa.from("reports").upsert({ ...d, id: rid() }, { onConflict: "id" });
+      } else {
+        await localDb.doc("reports/" + rid()).set(d);
+      }
+      return d;
+    }
+
+    $("#save").onclick = async () => {
+      try {
+        await saveRep();
+        $("#sv").textContent = "Saved ✓";
+        toast("Report saved successfully!");
+        setTimeout(() => $("#sv").textContent = "", 3000);
+      } catch (e) {
+        $("#sv").textContent = "Could not save: " + (e.message || e);
+      }
+    };
+
+    function drawMine() {
+      if (!me) return;
+      $("#pc").textContent = cur.photos.length + "/10 today";
+      $("#myph").innerHTML = cur.photos.map((p, i) => `
   <div style="position:relative;display:inline-block">
-   <img src="${esc(p.url)}" alt="Photo ${i+1}" onclick="$('#lbi').src=this.src;$('#lb').style.display='flex'">
+   <img src="${esc(p.url)}" alt="Photo ${i + 1}" onclick="$('#lbi').src=this.src;$('#lb').style.display='flex'">
    <button onclick="deletePhoto(${i})" style="position:absolute;top:4px;right:4px;background:#000a;color:#fff;border:0;border-radius:50%;width:24px;height:24px;font-size:12px;cursor:pointer">&times;</button>
   </div>`).join("");
-}
+    }
 
-window.deletePhoto=async idx=>{
- if(!confirm("Delete this photograph?"))return;
- cur.photos.splice(idx,1);
- await saveRep();
- drawMine();
- toast("Photograph deleted.");
-};
-
-/* ---------- Camera + Watermark Stamping ---------- */
-let stream;
-$("#snap").onclick=async()=>{
- if(!$("#fs").value.trim()||!($("#fp").value.trim()||pos)){
-  toast("Enter school / place and address first, then tap Open camera.");
-  return;
- }
- if(cur.photos.length>=10){
-  toast("10 photos already taken for this day.");
-  return;
- }
- try{
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("Camera API unavailable");
-  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});
-  $("#vid").srcObject=stream;
-  $("#cam").style.display="flex";
- }catch(e){
-  // fallback to mobile file capture
-  $("#cf").click();
- }
-};
-
-const stopCam=()=>{
- if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
- $("#cam").style.display="none";
-};
-$("#cx").onclick=stopCam;
-$("#shot").onclick=()=>stamp($("#vid"),$("#vid").videoWidth||1280,$("#vid").videoHeight||720);
-
-$("#cf").onchange=async e=>{
- const f=e.target.files[0];
- e.target.value="";
- if(!f)return;
- try{
-  const b=await createImageBitmap(f);
-  stamp(b,b.width,b.height);
- }catch(x){
-  toast("Could not read the photo.");
- }
-};
-
-async function stamp(v,vw,vh){
- const sc=Math.min(1,1280/vw),w=Math.round(vw*sc),h=Math.round(vh*sc);
- const c=document.createElement("canvas");
- c.width=w;c.height=h;
- const x=c.getContext("2d");
- x.drawImage(v,0,0,w,h);
- 
- const t=new Date().toLocaleString("en-IN"),g=pos?pos.latitude.toFixed(5)+", "+pos.longitude.toFixed(5):"GPS n/a";
- const L=[
-  MAIN+" · "+T(me).n+" · Day "+$("#fday").value,
-  $("#fs").value.trim()+" — "+$("#fp").value.trim(),
-  t+" · "+g
- ];
- const fs=Math.max(14,Math.round(w/42)),bh=fs*3.9;
- 
- // Bottom watermark banner
- x.fillStyle="rgba(0,0,0,0.65)";
- x.fillRect(0,h-bh,w,bh);
- x.fillStyle="#fff";
- x.font="600 "+fs+"px sans-serif";
- x.textBaseline="top";
- 
- const lw=logoImg&&logoImg.complete&&logoImg.naturalWidth?Math.round(bh*0.8*logoImg.naturalWidth/logoImg.naturalHeight):0;
- if(lw>0){
-  x.fillStyle="#ffffff";
-  x.beginPath();
-  x.arc(10+bh*0.4,h-bh+bh*0.5,bh*0.42,0,Math.PI*2);
-  x.fill();
-  x.drawImage(logoImg,10,h-bh+bh*0.1,bh*0.8,bh*0.8);
-  x.fillStyle="#ffffff";
- }
- 
- const textX=lw>0?bh*0.8+24:14;
- L.forEach((s,i)=>x.fillText(s,textX,h-bh+fs*0.35+i*fs*1.15,w-textX-12));
- 
- $("#cmsg").textContent="Saving stamped photo…";
- toast("Saving photo…");
- 
- c.toBlob(async b=>{
-  try{
-   const a=await assets.upload(b);
-   cur.photos.push({id:a.id,url:a.url,time:t,gps:g});
-   await saveRep();
-   drawMine();
-   $("#cmsg").textContent="Saved "+cur.photos.length+"/10";
-   toast("Photo saved "+cur.photos.length+"/10");
-   if(cur.photos.length>=10)stopCam();
-  }catch(e){
-   const m="Save failed: "+(e.message||e);
-   $("#cmsg").textContent=m;
-   toast(m);
-  }
- },"image/jpeg",0.82);
-}
-
-/* ---------- Admin Section ---------- */
-function renderCredTable(){
- const rows=TEAMS.map(t=>{
-  const cred=teams[t.id];
-  const u=cred?cred.user:("gir_"+t.id);
-  const p=cred&&cred.pass?cred.pass:t.id;
-  return `<tr><td>${t.n}</td><td><code>${esc(u)}</code></td><td><b>${esc(p)}</b></td></tr>`;
- }).join("");
- $("#cred").innerHTML=`<table><tr><th>Team</th><th>Username</th><th>Password</th></tr>${rows}</table>`;
-}
-
-$("#genReset").onclick=async()=>{
- if(!confirm("Reset all 10 team passwords to their default easy logins (e.g. username 'gir_kodinar1', password 'kodinar1')?"))return;
- for(const t of TEAMS){
-  const u="gir_"+t.id,p=t.id;
-  const h=await sha(u+":"+p);
-  await db.doc("teams/"+t.id).set({name:t.n,user:u,pass:p,hash:h});
- }
- toast("Logins reset to defaults! ✓");
-};
-
-$("#gen").onclick=async()=>{
- if(!confirm("Generate new random passwords for all 10 teams? This will replace the old passwords."))return;
- const al="abcdefghjkmnpqrstuvwxyz23456789";
- for(const t of TEAMS){
-  const u="gir_"+t.id;
-  const p=Array.from(crypto.getRandomValues(new Uint8Array(6)),b=>al[b%al.length]).join("");
-  const h=await sha(u+":"+p);
-  await db.doc("teams/"+t.id).set({name:t.n,user:u,pass:p,hash:h});
- }
- toast("New random logins generated! ✓");
-};
-
-$("#lf").onchange=async e=>{
- const f=e.target.files[0];
- if(!f)return;
- try{
-  const a=await assets.upload(f);
-  await db.doc("settings/main").set({logo:a.url});
-  logoUrl=a.url;
-  logoImg.src=logoUrl;
-  $("#hl").src=logoUrl;
-  $("#lst").textContent="Custom watermark logo saved ✓";
-  toast("Logo updated!");
- }catch(x){
-  $("#lst").textContent="Failed: "+(x.message||x);
- }
-};
-
-// Admin Excel Export
-$("#xlAdmin").onclick=excelWithPhotos;
-$("#xlAdminForm").onclick=excelFormOnly;
-$("#pptAdmin").onclick=exportDesignerPPT;
-$("#zipAdmin").onclick=()=>{
- const sel=$("#zipAdminTeam");
- if(sel){
-  const oldSel=$("#zipTeamSelect");
-  exportTeamPhotosZip(null,sel.value);
- }
-};
-// Populate admin ZIP team selector
-(function(){
- const sel=$("#zipAdminTeam");
- if(sel){
-  sel.innerHTML=`<option value="">-- Select team for ZIP --</option>`+
-   TEAMS.map(t=>`<option value="${t.id}">${esc(t.n)}</option>`).join("");
- }
-})();
-
-// Export JSON
-$("#expJson").onclick=async()=>{
- const allReports=await idbGetAll("reports");
- const allTeams=await idbGetAll("teams");
- const settings=await idbGet("settings","main");
- const payload={
-  exportedAt:new Date().toISOString(),
-  group:MAIN,
-  reports:allReports,
-  teams:allTeams,
-  settings:settings
- };
- const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
- const a=document.createElement("a");
- a.href=URL.createObjectURL(blob);
- a.download="PoshanYatra_Backup_"+today()+".json";
- document.body.appendChild(a);
- a.click();
- document.body.removeChild(a);
- setTimeout(()=>URL.revokeObjectURL(a.href),2000);
- toast("JSON backup exported! ✓");
-};
-
-// Import JSON
-$("#impJson").onchange=async e=>{
- const f=e.target.files[0];
- e.target.value="";
- if(!f)return;
- try{
-  const txt=await f.text();
-  const d=JSON.parse(txt);
-  if(!d.reports&&!Array.isArray(d))throw new Error("Invalid backup format");
-  const repList=d.reports||d;
-  for(const r of repList){
-   if(r&&r.id)await idbPut("reports",r);
-  }
-  if(d.teams){
-   for(const t of d.teams){if(t&&t.id)await idbPut("teams",t)}
-  }
-  notify("reports");notify("teams");
-  toast("Data successfully imported! ✓ ("+repList.length+" reports)");
-  $("#bkMsg").textContent="Imported "+repList.length+" reports on "+new Date().toLocaleTimeString();
- }catch(err){
-  toast("Import failed: "+err.message);
-  $("#bkMsg").textContent="Import error: "+err.message;
- }
-};
-
-// Clear All Data
-$("#clrData").onclick=async()=>{
- if(!confirm("Are you sure you want to delete all reports and photographs? (Make sure you exported an Excel or JSON backup first!)"))return;
- if(!confirm("Please confirm again to delete ALL local data."))return;
- await idbClear("reports");
- notify("reports");
- toast("All report data cleared.");
-};
-
-/* ---------- Gallery Upload Handler ---------- */
-if($("#galleryUpload"))$("#galleryUpload").onchange=async e=>{
- if(!me){toast("Please sign in first.");return}
- if(!$("#fs").value.trim()||!($("#fp").value.trim()||pos)){
-  toast("Enter school / place and address first, then upload photos.");
-  return;
- }
- const files=[...e.target.files];
- e.target.value="";
- const remaining=10-cur.photos.length;
- if(remaining<=0){toast("10 photos already taken for this day.");return}
- const toProcess=files.slice(0,remaining);
- if(files.length>remaining)toast("Only "+remaining+" more photo(s) allowed. Processing first "+remaining+".");
- for(const f of toProcess){
-  try{
-   const b=await createImageBitmap(f);
-   await new Promise((resolve,reject)=>{
-    const sc2=Math.min(1,1280/b.width),w2=Math.round(b.width*sc2),h2=Math.round(b.height*sc2);
-    const c2=document.createElement("canvas");
-    c2.width=w2;c2.height=h2;
-    const x2=c2.getContext("2d");
-    x2.drawImage(b,0,0,w2,h2);
-    const tm2=new Date().toLocaleString("en-IN"),g2=pos?pos.latitude.toFixed(5)+", "+pos.longitude.toFixed(5):"GPS n/a";
-    const LL=[MAIN+" · "+T(me).n+" · Day "+$("#fday").value,$("#fs").value.trim()+" — "+$("#fp").value.trim(),tm2+" · "+g2];
-    const fs2=Math.max(14,Math.round(w2/42)),bh2=fs2*3.9;
-    x2.fillStyle="rgba(0,0,0,0.65)";x2.fillRect(0,h2-bh2,w2,bh2);
-    x2.fillStyle="#fff";x2.font="600 "+fs2+"px sans-serif";x2.textBaseline="top";
-    const lw2=logoImg&&logoImg.complete&&logoImg.naturalWidth?Math.round(bh2*0.8*logoImg.naturalWidth/logoImg.naturalHeight):0;
-    if(lw2>0){x2.fillStyle="#ffffff";x2.beginPath();x2.arc(10+bh2*0.4,h2-bh2+bh2*0.5,bh2*0.42,0,Math.PI*2);x2.fill();x2.drawImage(logoImg,10,h2-bh2+bh2*0.1,bh2*0.8,bh2*0.8);x2.fillStyle="#ffffff"}
-    const textX3=lw2>0?bh2*0.8+24:14;
-    LL.forEach((s,i)=>x2.fillText(s,textX3,h2-bh2+fs2*0.35+i*fs2*1.15,w2-textX3-12));
-    c2.toBlob(async bl=>{
-     try{
-      const a=await assets.upload(bl);
-      cur.photos.push({id:a.id,url:a.url,time:tm2,gps:g2});
+    window.deletePhoto = async idx => {
+      if (!confirm("Delete this photograph?")) return;
+      cur.photos.splice(idx, 1);
       await saveRep();
       drawMine();
-      toast("Photo saved "+cur.photos.length+"/10");
-      resolve();
-     }catch(err){toast("Upload failed: "+err.message);reject(err)}
-    },"image/jpeg",0.82);
-   });
-  }catch(err){toast("Could not process photo: "+err.message)}
- }
-};
+      toast("Photograph deleted.");
+    };
 
-/* ---------- Designer PPT Export ---------- */
-async function exportDesignerPPT(){
- if(typeof PptxGenJS==="undefined"){toast("PPT library is loading, please wait…");return}
- toast("Generating designer PPT…");
+    /* ---------- Camera + Watermark Stamping ---------- */
+    let stream;
+    $("#snap").onclick = async () => {
+      if (!$("#fs").value.trim() || !($("#fp").value.trim() || pos)) {
+        toast("Enter school / place and address first, then tap Open camera.");
+        return;
+      }
+      if (cur.photos.length >= 10) {
+        toast("10 photos already taken for this day.");
+        return;
+      }
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("Camera API unavailable");
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+        $("#vid").srcObject = stream;
+        $("#cam").style.display = "flex";
+      } catch (e) {
+        // fallback to mobile file capture
+        $("#cf").click();
+      }
+    };
 
- const pptx=new PptxGenJS();
- pptx.author="Gujarat Vidyapith";
- pptx.company="Gujarat Vidyapith - Poshan Yatra 2026";
- pptx.subject="Poshan Yatra 2026 Dashboard Report";
- pptx.title="Poshan Yatra 2026 - G-051 Gir Somnath";
- pptx.layout="LAYOUT_WIDE";
+    const stopCam = () => {
+      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null }
+      $("#cam").style.display = "none";
+    };
+    $("#cx").onclick = stopCam;
+    $("#shot").onclick = () => stamp($("#vid"), $("#vid").videoWidth || 1280, $("#vid").videoHeight || 720);
 
- const BRAND_C="8B1E2D",BRAND2_C="6D1522",ACC_C="E8A33D",OK_C="2E7D4F",WHITE_C="FFFFFF",DARK_C="2B2220",LIGHT_C="FBF6EE";
+    $("#cf").onchange = async e => {
+      const f = e.target.files[0];
+      e.target.value = "";
+      if (!f) return;
+      try {
+        const b = await createImageBitmap(f);
+        stamp(b, b.width, b.height);
+      } catch (x) {
+        toast("Could not read the photo.");
+      }
+    };
 
- // --- Slide 1: Title ---
- const s1=pptx.addSlide();
- s1.background={fill:BRAND2_C};
- s1.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
- s1.addShape(pptx.shapes.OVAL,{x:9.5,y:-1.5,w:5,h:5,fill:{color:BRAND_C,transparency:60}});
- s1.addShape(pptx.shapes.OVAL,{x:-1,y:4,w:3,h:3,fill:{color:ACC_C,transparency:70}});
- try{
-  if(logoImg&&logoImg.complete&&logoImg.naturalWidth){
-   const lc=document.createElement("canvas");lc.width=logoImg.naturalWidth;lc.height=logoImg.naturalHeight;
-   lc.getContext("2d").drawImage(logoImg,0,0);
-   s1.addImage({data:lc.toDataURL("image/png"),x:0.5,y:1.0,w:1.4,h:1.4,rounding:true});
-  }
- }catch(e){}
- s1.addText("Poshan Yatra 2026",{x:0.5,y:2.6,w:8,h:1.0,fontSize:40,bold:true,color:WHITE_C,fontFace:"Georgia"});
- s1.addText("Group G-051 · Gir Somnath · Gujarat Vidyapith",{x:0.5,y:3.5,w:8,h:0.5,fontSize:18,color:ACC_C,fontFace:"Segoe UI"});
- s1.addText(NS+" Students · "+TEAMS.length+" Teams · "+TALUKAS.length+" Talukas",{x:0.5,y:4.1,w:8,h:0.4,fontSize:14,color:WHITE_C,fontFace:"Segoe UI",transparency:20});
- s1.addText("Report generated: "+new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"}),{x:0.5,y:6.5,w:6,h:0.3,fontSize:10,color:WHITE_C,transparency:40,fontFace:"Segoe UI"});
+    async function stamp(v, vw, vh) {
+      const sc = Math.min(1, 1280 / vw), w = Math.round(vw * sc), h = Math.round(vh * sc);
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      const x = c.getContext("2d");
+      x.drawImage(v, 0, 0, w, h);
 
- // --- Slide 2: KPI Overview ---
- const s2p=pptx.addSlide();
- s2p.background={fill:LIGHT_C};
- s2p.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
- s2p.addText("Dashboard Overview",{x:0.5,y:0.3,w:8,h:0.6,fontSize:28,bold:true,color:BRAND_C,fontFace:"Georgia"});
- const actT=TEAMS.filter(t=>rep(t.id).length).length;
- const schoolsT=new Set(reports.map(r=>(r.school||"").toLowerCase()).filter(Boolean)).size;
- const totalPhotosT=reports.reduce((n,r)=>n+np(r),0);
- const maxDayT=Math.max(0,...reports.map(r=>+r.day||0));
- const kpis=[{label:"Teams Reporting",value:actT+"/"+TEAMS.length,icon:"📊"},{label:"Total Students",value:NS+"",icon:"🎓"},{label:"Schools Visited",value:schoolsT+"",icon:"🏫"},{label:"Photographs",value:totalPhotosT+"",icon:"📷"},{label:"Latest Day",value:maxDayT?"Day "+maxDayT:"–",icon:"📅"}];
- kpis.forEach((k,i)=>{
-  const xp=0.4+i*2.5;
-  s2p.addShape(pptx.shapes.ROUNDED_RECTANGLE,{x:xp,y:1.2,w:2.2,h:1.8,fill:{color:WHITE_C},shadow:{type:"outer",blur:6,offset:2,color:"00000020"},rectRadius:0.15});
-  s2p.addText(k.icon,{x:xp,y:1.35,w:2.2,h:0.5,fontSize:24,align:"center"});
-  s2p.addText(k.value,{x:xp,y:1.8,w:2.2,h:0.6,fontSize:28,bold:true,color:BRAND_C,align:"center",fontFace:"Georgia"});
-  s2p.addText(k.label,{x:xp,y:2.4,w:2.2,h:0.4,fontSize:10,color:"7A6C66",align:"center",fontFace:"Segoe UI"});
- });
+      const t = new Date().toLocaleString("en-IN"), g = pos ? pos.latitude.toFixed(5) + ", " + pos.longitude.toFixed(5) : "GPS n/a";
+      const L = [
+        MAIN + " · " + T(me).n + " · Day " + $("#fday").value,
+        $("#fs").value.trim() + " — " + $("#fp").value.trim(),
+        t + " · " + g
+      ];
+      const fs = Math.max(14, Math.round(w / 42)), bh = fs * 3.9;
 
- // --- Slide 3: Taluka Summary ---
- const s3p=pptx.addSlide();
- s3p.background={fill:LIGHT_C};
- s3p.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
- s3p.addText("Taluka-wise Summary",{x:0.5,y:0.3,w:8,h:0.6,fontSize:28,bold:true,color:BRAND_C,fontFace:"Georgia"});
- const tblHead=[[{text:"Taluka",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Teams",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Students",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Reports",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Photos",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}}]];
- const tblRows=TALUKAS.map(k=>{
-  const ts=TEAMS.filter(t=>t.t==k);
-  return [{text:k},{text:ts.length+""},{text:ts.reduce((n,t)=>n+t.m.length,0)+""},{text:ts.reduce((n,t)=>n+rep(t.id).length,0)+""},{text:ts.reduce((n,t)=>n+rep(t.id).reduce((m,x)=>m+np(x),0),0)+""}];
- });
- s3p.addTable([...tblHead,...tblRows],{x:0.5,y:1.2,w:12,fontSize:13,border:{type:"solid",pt:0.5,color:"EADFCE"},rowH:0.45,colW:[3,2,2,2.5,2.5],align:"center",fontFace:"Segoe UI"});
+      // Bottom watermark banner
+      x.fillStyle = "rgba(0,0,0,0.65)";
+      x.fillRect(0, h - bh, w, bh);
+      x.fillStyle = "#fff";
+      x.font = "600 " + fs + "px sans-serif";
+      x.textBaseline = "top";
 
- // --- Per-taluka team slides ---
- for(const taluka of TALUKAS){
-  const ts=TEAMS.filter(t=>t.t==taluka);
-  const sl=pptx.addSlide();
-  sl.background={fill:WHITE_C};
-  sl.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
-  sl.addShape(pptx.shapes.RECTANGLE,{x:0,y:0.08,w:"100%",h:0.8,fill:{color:BRAND_C}});
-  sl.addText(taluka+" Teams",{x:0.5,y:0.15,w:8,h:0.6,fontSize:24,bold:true,color:WHITE_C,fontFace:"Georgia"});
-  sl.addText(ts.length+" team(s) · "+ts.reduce((n,t)=>n+t.m.length,0)+" students",{x:0.5,y:0.55,w:8,h:0.3,fontSize:11,color:ACC_C,fontFace:"Segoe UI"});
-  const teamHead=[[{text:"Team",options:{bold:true,color:WHITE_C,fill:{color:BRAND2_C}}},{text:"Members",options:{bold:true,color:WHITE_C,fill:{color:BRAND2_C}}},{text:"Days",options:{bold:true,color:WHITE_C,fill:{color:BRAND2_C}}},{text:"Last School",options:{bold:true,color:WHITE_C,fill:{color:BRAND2_C}}},{text:"Photos",options:{bold:true,color:WHITE_C,fill:{color:BRAND2_C}}}]];
-  const teamRows=ts.map(t=>{const r2=rep(t.id);return [{text:t.n},{text:t.m.length+""},{text:r2.length+""},{text:r2[0]?r2[0].school:"—"},{text:r2.reduce((n,x)=>n+np(x),0)+""}]});
-  sl.addTable([...teamHead,...teamRows],{x:0.5,y:1.2,w:12,fontSize:12,border:{type:"solid",pt:0.5,color:"EADFCE"},rowH:0.4,colW:[2.8,1.5,2,3.5,2.2],align:"center",fontFace:"Segoe UI"});
- }
+      const lw = logoImg && logoImg.complete && logoImg.naturalWidth ? Math.round(bh * 0.8 * logoImg.naturalWidth / logoImg.naturalHeight) : 0;
+      if (lw > 0) {
+        x.fillStyle = "#ffffff";
+        x.beginPath();
+        x.arc(10 + bh * 0.4, h - bh + bh * 0.5, bh * 0.42, 0, Math.PI * 2);
+        x.fill();
+        x.drawImage(logoImg, 10, h - bh + bh * 0.1, bh * 0.8, bh * 0.8);
+        x.fillStyle = "#ffffff";
+      }
 
- // --- Day-wise slides ---
- const rsPPT=reports.filter(r=>(!fT||r.taluka==fT)&&(!fD||r.day==fD)).sort((a,b)=>a.day-b.day);
- if(rsPPT.length){
-  const chSize=10;
-  for(let ch=0;ch<rsPPT.length;ch+=chSize){
-   const chunk=rsPPT.slice(ch,ch+chSize);
-   const sl=pptx.addSlide();
-   sl.background={fill:LIGHT_C};
-   sl.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
-   sl.addText("Day-wise Reports",{x:0.5,y:0.2,w:8,h:0.5,fontSize:22,bold:true,color:BRAND_C,fontFace:"Georgia"});
-   const rHead=[[{text:"Day",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Date",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Team",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"School",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Type",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Address",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Photos",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}}]];
-   const rRows=chunk.map(r=>[{text:"Day "+r.day},{text:r.date||""},{text:r.team||""},{text:r.school||""},{text:r.schoolType||"—"},{text:r.address||""},{text:np(r)+"/10"}]);
-   sl.addTable([...rHead,...rRows],{x:0.3,y:0.9,w:12.7,fontSize:11,border:{type:"solid",pt:0.5,color:"EADFCE"},rowH:0.38,colW:[1.2,1.6,2.3,2.5,1.6,2.3,1.2],align:"center",fontFace:"Segoe UI"});
-  }
- }
+      const textX = lw > 0 ? bh * 0.8 + 24 : 14;
+      L.forEach((s, i) => x.fillText(s, textX, h - bh + fs * 0.35 + i * fs * 1.15, w - textX - 12));
 
- // --- Photo gallery slides (4 per slide, max 40) ---
- const allPhotosPPT=reports.flatMap(r=>(r.photos||[]).map(p=>({...p,team:r.team,school:r.school,day:r.day})));
- if(allPhotosPPT.length){
-  for(let ch=0;ch<Math.min(allPhotosPPT.length,40);ch+=4){
-   const chunk=allPhotosPPT.slice(ch,ch+4);
-   const sl=pptx.addSlide();
-   sl.background={fill:WHITE_C};
-   sl.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
-   sl.addText("Photo Gallery",{x:0.5,y:0.2,w:6,h:0.5,fontSize:20,bold:true,color:BRAND_C,fontFace:"Georgia"});
-   const positions=[{x:0.3,y:0.9,w:6,h:3},{x:6.6,y:0.9,w:6,h:3},{x:0.3,y:4.2,w:6,h:3},{x:6.6,y:4.2,w:6,h:3}];
-   for(let i=0;i<chunk.length;i++){
-    const pp=chunk[i],ps=positions[i];
-    try{
-     const imgData=await getPhotoBuffer(pp.url);
-     if(imgData&&imgData.buffer){
-      const bytes=new Uint8Array(imgData.buffer);
-      let b64Str="";for(let j=0;j<bytes.length;j+=32768)b64Str+=String.fromCharCode.apply(null,bytes.subarray(j,j+32768));
-      const dataUri="data:image/"+imgData.extension+";base64,"+btoa(b64Str);
-      sl.addImage({data:dataUri,x:ps.x+0.2,y:ps.y+0.1,w:ps.w-0.4,h:ps.h-0.7,rounding:true});
-     }
-    }catch(e){}
-    sl.addText((pp.team||"")+" · Day "+(pp.day||"")+" · "+(pp.school||""),{x:ps.x,y:ps.y+ps.h-0.55,w:ps.w,h:0.3,fontSize:8,color:"7A6C66",align:"center",fontFace:"Segoe UI"});
-   }
-  }
- }
+      $("#cmsg").textContent = "Saving stamped photo…";
+      toast("Saving photo…");
 
- // --- Thank You Slide ---
- const sLast=pptx.addSlide();
- sLast.background={fill:BRAND2_C};
- sLast.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
- sLast.addShape(pptx.shapes.OVAL,{x:10,y:4,w:4,h:4,fill:{color:BRAND_C,transparency:50}});
- sLast.addText("Thank You!",{x:0,y:2.5,w:"100%",h:1.2,fontSize:48,bold:true,color:WHITE_C,align:"center",fontFace:"Georgia"});
- sLast.addText("Poshan Yatra 2026 · Gujarat Vidyapith · G-051 Gir Somnath",{x:0,y:3.8,w:"100%",h:0.5,fontSize:16,color:ACC_C,align:"center",fontFace:"Segoe UI"});
- sLast.addText("Generated on "+new Date().toLocaleString("en-IN"),{x:0,y:6.5,w:"100%",h:0.3,fontSize:10,color:WHITE_C,align:"center",transparency:40,fontFace:"Segoe UI"});
+      c.toBlob(async b => {
+        try {
+          const uploader = _supa ? window._sbAssets : localAssets;
+          const a = await uploader.upload(b);
+          cur.photos.push({ id: a.id, url: a.url, time: t, gps: g });
+          await saveRep();
+          drawMine();
+          $("#cmsg").textContent = "Saved " + cur.photos.length + "/10";
+          toast("Photo saved " + cur.photos.length + "/10");
+          if (cur.photos.length >= 10) stopCam();
+        } catch (e) {
+          const m = "Save failed: " + (e.message || e);
+          $("#cmsg").textContent = m;
+          toast(m);
+        }
+      }, "image/jpeg", 0.82);
+    }
 
- try{
-  await pptx.writeFile({fileName:"PoshanYatra_G051_GirSomnath_"+today()+".pptx"});
-  toast("Designer PPT downloaded successfully! ✓");
- }catch(e){
-  toast("PPT export failed: "+(e.message||e));
- }
-}
+    /* ---------- Admin Section ---------- */
+    function renderCredTable() {
+      const rows = TEAMS.map(t => {
+        const cred = teams[t.id];
+        const u = cred ? cred.user : ("gir_" + t.id);
+        const p = cred && cred.pass ? cred.pass : t.id;
+        return `<tr><td>${t.n}</td><td><code>${esc(u)}</code></td><td><b>${esc(p)}</b></td></tr>`;
+      }).join("");
+      $("#cred").innerHTML = `<table><tr><th>Team</th><th>Username</th><th>Password</th></tr>${rows}</table>`;
+    }
 
-/* ---------- Team Photos ZIP Export ---------- */
-async function exportTeamPhotosZip(e,overrideTeamId){
- if(typeof JSZip==="undefined"){toast("ZIP library is loading, please wait…");return}
- const teamId=overrideTeamId||($("#zipTeamSelect")?$("#zipTeamSelect").value:"");
- if(!teamId){toast("Please select a team first.");return}
- const team=T(teamId);
- if(!team){toast("Team not found.");return}
- const teamReports=reports.filter(r=>r.team_id==teamId);
- const allPhotosZ=teamReports.flatMap(r=>(r.photos||[]).map((p,i)=>({...p,day:r.day,school:r.school,idx:i})));
- if(!allPhotosZ.length){toast("No photos found for "+team.n);return}
- toast("Creating ZIP for "+team.n+" ("+allPhotosZ.length+" photos)…");
- const zip=new JSZip();
- const folder=zip.folder(team.n.replace(/[^a-zA-Z0-9_ ]/g,"_"));
- let done=0;
- for(const p of allPhotosZ){
-  try{
-   const imgData=await getPhotoBuffer(p.url);
-   if(imgData&&imgData.buffer){
-    const fname="Day"+p.day+"_Photo"+(p.idx+1)+"_"+(p.school||"").replace(/[^a-zA-Z0-9]/g,"_").slice(0,30)+"."+imgData.extension;
-    folder.file(fname,imgData.buffer);
-    done++;
-    toast("Packing photo "+done+"/"+allPhotosZ.length+"…");
-   }
-  }catch(err){console.warn("ZIP photo error:",err)}
- }
- if(!done){toast("Could not pack any photos.");return}
- try{
-  const content=await zip.generateAsync({type:"blob"},metadata=>{toast("Compressing… "+Math.round(metadata.percent)+"%")});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(content);
-  a.download=team.n.replace(/\s+/g,"_")+"_Photos_"+today()+".zip";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
-  toast(team.n+" photos ZIP downloaded! ("+done+" photos) ✓");
- }catch(err){
-  toast("ZIP export failed: "+(err.message||err));
- }
-}
+    $("#genReset").onclick = async () => {
+      if (!confirm("Reset all 10 team passwords to their default easy logins (e.g. username 'gir_kodinar1', password 'kodinar1')?")) return;
+      for (const t of TEAMS) {
+        const u = "gir_" + t.id, p = t.id;
+        const h = await sha(u + ":" + p);
+        if (_supa) {
+          await _supa.from("teams").upsert({ id: t.id, name: t.n, user: u, pass: p, hash: h }, { onConflict: "id" });
+        } else {
+          await localDb.doc("teams/" + t.id).set({ name: t.n, user: u, pass: p, hash: h });
+        }
+      }
+      toast("Logins reset to defaults! ✓");
+    };
 
-// Admin PPT + ZIP bindings
-if($("#pptAdmin"))$("#pptAdmin").onclick=exportDesignerPPT;
-if($("#zipAdmin"))$("#zipAdmin").onclick=()=>{
- const sel=$("#zipAdminTeam");
- if(sel)exportTeamPhotosZip(null,sel.value);
-};
-(function(){
- const sel=$("#zipAdminTeam");
- if(sel)sel.innerHTML=`<option value="">-- Select team for ZIP --</option>`+TEAMS.map(t=>`<option value="${t.id}">${esc(t.n)}</option>`).join("");
-})();
-</script>
+    $("#gen").onclick = async () => {
+      if (!confirm("Generate new random passwords for all 10 teams? This will replace the old passwords.")) return;
+      const al = "abcdefghjkmnpqrstuvwxyz23456789";
+      for (const t of TEAMS) {
+        const u = "gir_" + t.id;
+        const p = Array.from(crypto.getRandomValues(new Uint8Array(6)), b => al[b % al.length]).join("");
+        const h = await sha(u + ":" + p);
+        if (_supa) {
+          await _supa.from("teams").upsert({ id: t.id, name: t.n, user: u, pass: p, hash: h }, { onConflict: "id" });
+        } else {
+          await localDb.doc("teams/" + t.id).set({ name: t.n, user: u, pass: p, hash: h });
+        }
+      }
+      toast("New random logins generated! ✓");
+    };
+
+    $("#lf").onchange = async e => {
+      const f = e.target.files[0];
+      if (!f) return;
+      try {
+        const uploader2 = _supa ? window._sbAssets : localAssets;
+        const a = await uploader2.upload(f);
+        if (_supa) {
+          await _supa.from("settings").upsert({ id: "main", logo: a.url }, { onConflict: "id" });
+        } else {
+          await localDb.doc("settings/main").set({ logo: a.url });
+        }
+        logoUrl = a.url;
+        logoImg.src = logoUrl;
+        $("#hl").src = logoUrl;
+        $("#lst").textContent = "Custom watermark logo saved ✓";
+        toast("Logo updated!");
+      } catch (x) {
+        $("#lst").textContent = "Failed: " + (x.message || x);
+      }
+    };
+
+    // Admin Excel Export
+    $("#xlAdmin").onclick = excelWithPhotos;
+    $("#xlAdminForm").onclick = excelFormOnly;
+    $("#pptAdmin").onclick = exportDesignerPPT;
+    $("#zipAdmin").onclick = () => {
+      const sel = $("#zipAdminTeam");
+      if (sel) {
+        const oldSel = $("#zipTeamSelect");
+        exportTeamPhotosZip(null, sel.value);
+      }
+    };
+    // Populate admin ZIP team selector
+    (function () {
+      const sel = $("#zipAdminTeam");
+      if (sel) {
+        sel.innerHTML = `<option value="">-- Select team for ZIP --</option>` +
+          TEAMS.map(t => `<option value="${t.id}">${esc(t.n)}</option>`).join("");
+      }
+    })();
+
+    // Export JSON
+    $("#expJson").onclick = async () => {
+      const allReports = await idbGetAll("reports");
+      const allTeams = await idbGetAll("teams");
+      const settings = await idbGet("settings", "main");
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        group: MAIN,
+        reports: allReports,
+        teams: allTeams,
+        settings: settings
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "PoshanYatra_Backup_" + today() + ".json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      toast("JSON backup exported! ✓");
+    };
+
+    // Import JSON
+    $("#impJson").onchange = async e => {
+      const f = e.target.files[0];
+      e.target.value = "";
+      if (!f) return;
+      try {
+        const txt = await f.text();
+        const d = JSON.parse(txt);
+        if (!d.reports && !Array.isArray(d)) throw new Error("Invalid backup format");
+        const repList = d.reports || d;
+        for (const r of repList) {
+          if (r && r.id) await idbPut("reports", r);
+        }
+        if (d.teams) {
+          for (const t of d.teams) { if (t && t.id) await idbPut("teams", t) }
+        }
+        notify("reports"); notify("teams");
+        toast("Data successfully imported! ✓ (" + repList.length + " reports)");
+        $("#bkMsg").textContent = "Imported " + repList.length + " reports on " + new Date().toLocaleTimeString();
+      } catch (err) {
+        toast("Import failed: " + err.message);
+        $("#bkMsg").textContent = "Import error: " + err.message;
+      }
+    };
+
+    // Clear All Data
+    $("#clrData").onclick = async () => {
+      if (!confirm("Are you sure you want to delete all reports and photographs? (Make sure you exported an Excel or JSON backup first!)")) return;
+      if (!confirm("Please confirm again to delete ALL local data.")) return;
+      await idbClear("reports");
+      notify("reports");
+      toast("All report data cleared.");
+    };
+
+    /* ---------- Gallery Upload Handler ---------- */
+    if ($("#galleryUpload")) $("#galleryUpload").onchange = async e => {
+      if (!me) { toast("Please sign in first."); return }
+      if (!$("#fs").value.trim() || !($("#fp").value.trim() || pos)) {
+        toast("Enter school / place and address first, then upload photos.");
+        return;
+      }
+      const files = [...e.target.files];
+      e.target.value = "";
+      const remaining = 10 - cur.photos.length;
+      if (remaining <= 0) { toast("10 photos already taken for this day."); return }
+      const toProcess = files.slice(0, remaining);
+      if (files.length > remaining) toast("Only " + remaining + " more photo(s) allowed. Processing first " + remaining + ".");
+      for (const f of toProcess) {
+        try {
+          const b = await createImageBitmap(f);
+          await new Promise((resolve, reject) => {
+            const sc2 = Math.min(1, 1280 / b.width), w2 = Math.round(b.width * sc2), h2 = Math.round(b.height * sc2);
+            const c2 = document.createElement("canvas");
+            c2.width = w2; c2.height = h2;
+            const x2 = c2.getContext("2d");
+            x2.drawImage(b, 0, 0, w2, h2);
+            const tm2 = new Date().toLocaleString("en-IN"), g2 = pos ? pos.latitude.toFixed(5) + ", " + pos.longitude.toFixed(5) : "GPS n/a";
+            const LL = [MAIN + " · " + T(me).n + " · Day " + $("#fday").value, $("#fs").value.trim() + " — " + $("#fp").value.trim(), tm2 + " · " + g2];
+            const fs2 = Math.max(14, Math.round(w2 / 42)), bh2 = fs2 * 3.9;
+            x2.fillStyle = "rgba(0,0,0,0.65)"; x2.fillRect(0, h2 - bh2, w2, bh2);
+            x2.fillStyle = "#fff"; x2.font = "600 " + fs2 + "px sans-serif"; x2.textBaseline = "top";
+            const lw2 = logoImg && logoImg.complete && logoImg.naturalWidth ? Math.round(bh2 * 0.8 * logoImg.naturalWidth / logoImg.naturalHeight) : 0;
+            if (lw2 > 0) { x2.fillStyle = "#ffffff"; x2.beginPath(); x2.arc(10 + bh2 * 0.4, h2 - bh2 + bh2 * 0.5, bh2 * 0.42, 0, Math.PI * 2); x2.fill(); x2.drawImage(logoImg, 10, h2 - bh2 + bh2 * 0.1, bh2 * 0.8, bh2 * 0.8); x2.fillStyle = "#ffffff" }
+            const textX3 = lw2 > 0 ? bh2 * 0.8 + 24 : 14;
+            LL.forEach((s, i) => x2.fillText(s, textX3, h2 - bh2 + fs2 * 0.35 + i * fs2 * 1.15, w2 - textX3 - 12));
+            c2.toBlob(async bl => {
+              try {
+                const uploader3 = _supa ? window._sbAssets : localAssets;
+                const a = await uploader3.upload(bl);
+                cur.photos.push({ id: a.id, url: a.url, time: tm2, gps: g2 });
+                await saveRep();
+                drawMine();
+                toast("Photo saved " + cur.photos.length + "/10");
+                resolve();
+              } catch (err) { toast("Upload failed: " + err.message); reject(err) }
+            }, "image/jpeg", 0.82);
+          });
+        } catch (err) { toast("Could not process photo: " + err.message) }
+      }
+    };
+
+    /* ---------- Designer PPT Export ---------- */
+    async function exportDesignerPPT() {
+      if (typeof PptxGenJS === "undefined") { toast("PPT library is loading, please wait…"); return }
+      toast("Generating designer PPT…");
+
+      const pptx = new PptxGenJS();
+      pptx.author = "Gujarat Vidyapith";
+      pptx.company = "Gujarat Vidyapith - Poshan Yatra 2026";
+      pptx.subject = "Poshan Yatra 2026 Dashboard Report";
+      pptx.title = "Poshan Yatra 2026 - G-051 Gir Somnath";
+      pptx.layout = "LAYOUT_WIDE";
+
+      const BRAND_C = "8B1E2D", BRAND2_C = "6D1522", ACC_C = "E8A33D", OK_C = "2E7D4F", WHITE_C = "FFFFFF", DARK_C = "2B2220", LIGHT_C = "FBF6EE";
+
+      // --- Slide 1: Title ---
+      const s1 = pptx.addSlide();
+      s1.background = { fill: BRAND2_C };
+      s1.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: "100%", h: 0.08, fill: { color: ACC_C } });
+      s1.addShape(pptx.shapes.OVAL, { x: 9.5, y: -1.5, w: 5, h: 5, fill: { color: BRAND_C, transparency: 60 } });
+      s1.addShape(pptx.shapes.OVAL, { x: -1, y: 4, w: 3, h: 3, fill: { color: ACC_C, transparency: 70 } });
+      try {
+        if (logoImg && logoImg.complete && logoImg.naturalWidth) {
+          const lc = document.createElement("canvas"); lc.width = logoImg.naturalWidth; lc.height = logoImg.naturalHeight;
+          lc.getContext("2d").drawImage(logoImg, 0, 0);
+          s1.addImage({ data: lc.toDataURL("image/png"), x: 0.5, y: 1.0, w: 1.4, h: 1.4, rounding: true });
+        }
+      } catch (e) { }
+      s1.addText("Poshan Yatra 2026", { x: 0.5, y: 2.6, w: 8, h: 1.0, fontSize: 40, bold: true, color: WHITE_C, fontFace: "Georgia" });
+      s1.addText("Group G-051 · Gir Somnath · Gujarat Vidyapith", { x: 0.5, y: 3.5, w: 8, h: 0.5, fontSize: 18, color: ACC_C, fontFace: "Segoe UI" });
+      s1.addText(NS + " Students · " + TEAMS.length + " Teams · " + TALUKAS.length + " Talukas", { x: 0.5, y: 4.1, w: 8, h: 0.4, fontSize: 14, color: WHITE_C, fontFace: "Segoe UI", transparency: 20 });
+      s1.addText("Report generated: " + new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }), { x: 0.5, y: 6.5, w: 6, h: 0.3, fontSize: 10, color: WHITE_C, transparency: 40, fontFace: "Segoe UI" });
+
+      // --- Slide 2: KPI Overview ---
+      const s2p = pptx.addSlide();
+      s2p.background = { fill: LIGHT_C };
+      s2p.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: "100%", h: 0.08, fill: { color: ACC_C } });
+      s2p.addText("Dashboard Overview", { x: 0.5, y: 0.3, w: 8, h: 0.6, fontSize: 28, bold: true, color: BRAND_C, fontFace: "Georgia" });
+      const actT = TEAMS.filter(t => rep(t.id).length).length;
+      const schoolsT = new Set(reports.map(r => (r.school || "").toLowerCase()).filter(Boolean)).size;
+      const totalPhotosT = reports.reduce((n, r) => n + np(r), 0);
+      const maxDayT = Math.max(0, ...reports.map(r => +r.day || 0));
+      const kpis = [{ label: "Teams Reporting", value: actT + "/" + TEAMS.length, icon: "📊" }, { label: "Total Students", value: NS + "", icon: "🎓" }, { label: "Schools Visited", value: schoolsT + "", icon: "🏫" }, { label: "Photographs", value: totalPhotosT + "", icon: "📷" }, { label: "Latest Day", value: maxDayT ? "Day " + maxDayT : "–", icon: "📅" }];
+      kpis.forEach((k, i) => {
+        const xp = 0.4 + i * 2.5;
+        s2p.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: xp, y: 1.2, w: 2.2, h: 1.8, fill: { color: WHITE_C }, shadow: { type: "outer", blur: 6, offset: 2, color: "00000020" }, rectRadius: 0.15 });
+        s2p.addText(k.icon, { x: xp, y: 1.35, w: 2.2, h: 0.5, fontSize: 24, align: "center" });
+        s2p.addText(k.value, { x: xp, y: 1.8, w: 2.2, h: 0.6, fontSize: 28, bold: true, color: BRAND_C, align: "center", fontFace: "Georgia" });
+        s2p.addText(k.label, { x: xp, y: 2.4, w: 2.2, h: 0.4, fontSize: 10, color: "7A6C66", align: "center", fontFace: "Segoe UI" });
+      });
+
+      // --- Slide 3: Taluka Summary ---
+      const s3p = pptx.addSlide();
+      s3p.background = { fill: LIGHT_C };
+      s3p.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: "100%", h: 0.08, fill: { color: ACC_C } });
+      s3p.addText("Taluka-wise Summary", { x: 0.5, y: 0.3, w: 8, h: 0.6, fontSize: 28, bold: true, color: BRAND_C, fontFace: "Georgia" });
+      const tblHead = [[{ text: "Taluka", options: { bold: true, color: WHITE_C, fill: { color: BRAND_C } } }, { text: "Teams", options: { bold: true, color: WHITE_C, fill: { color: BRAND_C } } }, { text: "Students", options: { bold: true, color: WHITE_C, fill: { color: BRAND_C } } }, { text: "Reports", options: { bold: true, color: WHITE_C, fill: { color: BRAND_C } } }, { text: "Photos", options: { bold: true, color: WHITE_C, fill: { color: BRAND_C } } }]];
+      const tblRows = TALUKAS.map(k => {
+        const ts = TEAMS.filter(t => t.t == k);
+        return [{ text: k }, { text: ts.length + "" }, { text: ts.reduce((n, t) => n + t.m.length, 0) + "" }, { text: ts.reduce((n, t) => n + rep(t.id).length, 0) + "" }, { text: ts.reduce((n, t) => n + rep(t.id).reduce((m, x) => m + np(x), 0), 0) + "" }];
+      });
+      s3p.addTable([...tblHead, ...tblRows], { x: 0.5, y: 1.2, w: 12, fontSize: 13, border: { type: "solid", pt: 0.5, color: "EADFCE" }, rowH: 0.45, colW: [3, 2, 2, 2.5, 2.5], align: "center", fontFace: "Segoe UI" });
+
+      // --- Per-taluka team slides ---
+      for (const taluka of TALUKAS) {
+        const ts = TEAMS.filter(t => t.t == taluka);
+        const sl = pptx.addSlide();
+        sl.background = { fill: WHITE_C };
+        sl.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: "100%", h: 0.08, fill: { color: ACC_C } });
+        sl.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0.08, w: "100%", h: 0.8, fill: { color: BRAND_C } });
+        sl.addText(taluka + " Teams", { x: 0.5, y: 0.15, w: 8, h: 0.6, fontSize: 24, bold: true, color: WHITE_C, fontFace: "Georgia" });
+        sl.addText(ts.length + " team(s) · " + ts.reduce((n, t) => n + t.m.length, 0) + " students", { x: 0.5, y: 0.55, w: 8, h: 0.3, fontSize: 11, color: ACC_C, fontFace: "Segoe UI" });
+        const teamHead = [[{ text: "Team", options: { bold: true, color: WHITE_C, fill: { color: BRAND2_C } } }, { text: "Members", options: { bold: true, color: WHITE_C, fill: { color: BRAND2_C } } }, { text: "Days", options: { bold: true, color: WHITE_C, fill: { color: BRAND2_C } } }, { text: "Last School", options: { bold: true, color: WHITE_C, fill: { color: BRAND2_C } } }, { text: "Photos", options: { bold: true, color: WHITE_C, fill: { color: BRAND2_C } } }]];
+        const teamRows = ts.map(t => { const r2 = rep(t.id); return [{ text: t.n }, { text: t.m.length + "" }, { text: r2.length + "" }, { text: r2[0] ? r2[0].school : "—" }, { text: r2.reduce((n, x) => n + np(x), 0) + "" }] });
+        sl.addTable([...teamHead, ...teamRows], { x: 0.5, y: 1.2, w: 12, fontSize: 12, border: { type: "solid", pt: 0.5, color: "EADFCE" }, rowH: 0.4, colW: [2.8, 1.5, 2, 3.5, 2.2], align: "center", fontFace: "Segoe UI" });
+      }
+
+      // --- Day-wise slides ---
+      const rsPPT = reports.filter(r => (!fT || r.taluka == fT) && (!fD || r.day == fD)).sort((a, b) => a.day - b.day);
+      if (rsPPT.length) {
+        const chSize = 10;
+        for (let ch = 0; ch < rsPPT.length; ch += chSize) {
+          const chunk = rsPPT.slice(ch, ch + chSize);
+          const sl = pptx.addSlide();
+          sl.background = { fill: LIGHT_C };
+          sl.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: "100%", h: 0.08, fill: { color: ACC_C } });
+          sl.addText("Day-wise Reports", { x: 0.5, y: 0.2, w: 8, h: 0.5, fontSize: 22, bold: true, color: BRAND_C, fontFace: "Georgia" });
+          const rHead = [[{ text: "Day", options: { bold: true, color: WHITE_C, fill: { color: BRAND_C } } }, { text: "Date", options: { bold: true, color: WHITE_C, fill: { color: BRAND_C } } }, { text: "Team", options: { bold: true, color: WHITE_C, fill: { color: BRAND_C } } }, { text: "School", options: { bold: true, color: WHITE_C, fill: { color: BRAND_C } } }, { text: "Type", options: { bold: true, color: WHITE_C, fill: { color: BRAND_C } } }, { text: "Address", options: { bold: true, color: WHITE_C, fill: { color: BRAND_C } } }, { text: "Photos", options: { bold: true, color: WHITE_C, fill: { color: BRAND_C } } }]];
+          const rRows = chunk.map(r => [{ text: "Day " + r.day }, { text: r.date || "" }, { text: r.team || "" }, { text: r.school || "" }, { text: r.schoolType || "—" }, { text: r.address || "" }, { text: np(r) + "/10" }]);
+          sl.addTable([...rHead, ...rRows], { x: 0.3, y: 0.9, w: 12.7, fontSize: 11, border: { type: "solid", pt: 0.5, color: "EADFCE" }, rowH: 0.38, colW: [1.2, 1.6, 2.3, 2.5, 1.6, 2.3, 1.2], align: "center", fontFace: "Segoe UI" });
+        }
+      }
+
+      // --- Photo gallery slides (4 per slide, max 40) ---
+      const allPhotosPPT = reports.flatMap(r => (r.photos || []).map(p => ({ ...p, team: r.team, school: r.school, day: r.day })));
+      if (allPhotosPPT.length) {
+        for (let ch = 0; ch < Math.min(allPhotosPPT.length, 40); ch += 4) {
+          const chunk = allPhotosPPT.slice(ch, ch + 4);
+          const sl = pptx.addSlide();
+          sl.background = { fill: WHITE_C };
+          sl.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: "100%", h: 0.08, fill: { color: ACC_C } });
+          sl.addText("Photo Gallery", { x: 0.5, y: 0.2, w: 6, h: 0.5, fontSize: 20, bold: true, color: BRAND_C, fontFace: "Georgia" });
+          const positions = [{ x: 0.3, y: 0.9, w: 6, h: 3 }, { x: 6.6, y: 0.9, w: 6, h: 3 }, { x: 0.3, y: 4.2, w: 6, h: 3 }, { x: 6.6, y: 4.2, w: 6, h: 3 }];
+          for (let i = 0; i < chunk.length; i++) {
+            const pp = chunk[i], ps = positions[i];
+            try {
+              const imgData = await getPhotoBuffer(pp.url);
+              if (imgData && imgData.buffer) {
+                const bytes = new Uint8Array(imgData.buffer);
+                let b64Str = ""; for (let j = 0; j < bytes.length; j += 32768)b64Str += String.fromCharCode.apply(null, bytes.subarray(j, j + 32768));
+                const dataUri = "data:image/" + imgData.extension + ";base64," + btoa(b64Str);
+                sl.addImage({ data: dataUri, x: ps.x + 0.2, y: ps.y + 0.1, w: ps.w - 0.4, h: ps.h - 0.7, rounding: true });
+              }
+            } catch (e) { }
+            sl.addText((pp.team || "") + " · Day " + (pp.day || "") + " · " + (pp.school || ""), { x: ps.x, y: ps.y + ps.h - 0.55, w: ps.w, h: 0.3, fontSize: 8, color: "7A6C66", align: "center", fontFace: "Segoe UI" });
+          }
+        }
+      }
+
+      // --- Thank You Slide ---
+      const sLast = pptx.addSlide();
+      sLast.background = { fill: BRAND2_C };
+      sLast.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: "100%", h: 0.08, fill: { color: ACC_C } });
+      sLast.addShape(pptx.shapes.OVAL, { x: 10, y: 4, w: 4, h: 4, fill: { color: BRAND_C, transparency: 50 } });
+      sLast.addText("Thank You!", { x: 0, y: 2.5, w: "100%", h: 1.2, fontSize: 48, bold: true, color: WHITE_C, align: "center", fontFace: "Georgia" });
+      sLast.addText("Poshan Yatra 2026 · Gujarat Vidyapith · G-051 Gir Somnath", { x: 0, y: 3.8, w: "100%", h: 0.5, fontSize: 16, color: ACC_C, align: "center", fontFace: "Segoe UI" });
+      sLast.addText("Generated on " + new Date().toLocaleString("en-IN"), { x: 0, y: 6.5, w: "100%", h: 0.3, fontSize: 10, color: WHITE_C, align: "center", transparency: 40, fontFace: "Segoe UI" });
+
+      try {
+        await pptx.writeFile({ fileName: "PoshanYatra_G051_GirSomnath_" + today() + ".pptx" });
+        toast("Designer PPT downloaded successfully! ✓");
+      } catch (e) {
+        toast("PPT export failed: " + (e.message || e));
+      }
+    }
+
+    /* ---------- Team Photos ZIP Export ---------- */
+    async function exportTeamPhotosZip(e, overrideTeamId) {
+      if (typeof JSZip === "undefined") { toast("ZIP library is loading, please wait…"); return }
+      const teamId = overrideTeamId || ($("#zipTeamSelect") ? $("#zipTeamSelect").value : "");
+      if (!teamId) { toast("Please select a team first."); return }
+      const team = T(teamId);
+      if (!team) { toast("Team not found."); return }
+      const teamReports = reports.filter(r => r.team_id == teamId);
+      const allPhotosZ = teamReports.flatMap(r => (r.photos || []).map((p, i) => ({ ...p, day: r.day, school: r.school, idx: i })));
+      if (!allPhotosZ.length) { toast("No photos found for " + team.n); return }
+      toast("Creating ZIP for " + team.n + " (" + allPhotosZ.length + " photos)…");
+      const zip = new JSZip();
+      const folder = zip.folder(team.n.replace(/[^a-zA-Z0-9_ ]/g, "_"));
+      let done = 0;
+      for (const p of allPhotosZ) {
+        try {
+          const imgData = await getPhotoBuffer(p.url);
+          if (imgData && imgData.buffer) {
+            const fname = "Day" + p.day + "_Photo" + (p.idx + 1) + "_" + (p.school || "").replace(/[^a-zA-Z0-9]/g, "_").slice(0, 30) + "." + imgData.extension;
+            folder.file(fname, imgData.buffer);
+            done++;
+            toast("Packing photo " + done + "/" + allPhotosZ.length + "…");
+          }
+        } catch (err) { console.warn("ZIP photo error:", err) }
+      }
+      if (!done) { toast("Could not pack any photos."); return }
+      try {
+        const content = await zip.generateAsync({ type: "blob" }, metadata => { toast("Compressing… " + Math.round(metadata.percent) + "%") });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(content);
+        a.download = team.n.replace(/\s+/g, "_") + "_Photos_" + today() + ".zip";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        toast(team.n + " photos ZIP downloaded! (" + done + " photos) ✓");
+      } catch (err) {
+        toast("ZIP export failed: " + (err.message || err));
+      }
+    }
+
+    // Admin PPT + ZIP bindings
+    if ($("#pptAdmin")) $("#pptAdmin").onclick = exportDesignerPPT;
+    if ($("#zipAdmin")) $("#zipAdmin").onclick = () => {
+      const sel = $("#zipAdminTeam");
+      if (sel) exportTeamPhotosZip(null, sel.value);
+    };
+    (function () {
+      const sel = $("#zipAdminTeam");
+      if (sel) sel.innerHTML = `<option value="">-- Select team for ZIP --</option>` + TEAMS.map(t => `<option value="${t.id}">${esc(t.n)}</option>`).join("");
+    })();
+  </script>
 </body>
+
 </html>

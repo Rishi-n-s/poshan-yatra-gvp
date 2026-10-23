@@ -406,12 +406,20 @@ document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>tab(b.dataset.t
 $("#fday").innerHTML=Array.from({length:DAYS},(_,i)=>`<option value="${i+1}">Day ${i+1}</option>`).join("");
 
 async function initDefaultLogins(){
- const existing=await idbGetAll("teams");
+ const existing=_supa
+  ? ((await _supa.from("teams").select("id")).data||[])
+  : await idbGetAll("teams");
  if(!existing||existing.length<TEAMS.length){
   for(const t of TEAMS){
    const u="gir_"+t.id,p=t.id; // default password is team id (e.g. kodinar1)
    const h=await sha(u+":"+p);
-   await db.doc("teams/"+t.id).set({name:t.n,user:u,pass:p,hash:h});
+   const row={id:t.id,name:t.n,user:u,pass:p,hash:h};
+   if(_supa){
+    const {error}=await _supa.from("teams").upsert(row,{onConflict:"id"});
+    if(error)throw new Error("Could not set up teams: "+error.message);
+   }else{
+    await localDb.doc("teams/"+t.id).set(row);
+   }
   }
  }
  renderCredTable();

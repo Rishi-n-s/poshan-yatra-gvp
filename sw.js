@@ -1,10 +1,11 @@
 // Bump this whenever a deployed static asset needs to replace an older cached copy.
-const C = "py-v4";
+const C = "py-v5";
 const A = [
   "./",
   "index.html",
   "config.js",
   "logo.png",
+  "GirSomnath.jfif.jpeg",
   "icon-192.png",
   "icon-512.png",
   "manifest.webmanifest"

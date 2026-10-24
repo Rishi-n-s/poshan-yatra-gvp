@@ -14,7 +14,7 @@
 
 <!-- Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -60,7 +60,7 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
 .note{border-left:4px solid var(--acc);background:var(--card);padding:10px 12px;border-radius:6px;font-size:13px;margin:10px 0}
 #toast{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:12px;left:12px;max-width:380px;margin-left:auto;background:var(--brand2);color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 6px 20px #0005;z-index:100;display:none;font-size:13px}
 #lb{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;z-index:105;padding:12px}#lb img{max-width:100%;max-height:100%;border-radius:8px}
-#splash{position:fixed;inset:0;background:linear-gradient(135deg,#6d1522,#8b1e2d);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;z-index:110;transition:opacity .4s}
+#splash{position:fixed;inset:0;background:linear-gradient(rgba(109,21,34,.82),rgba(139,30,45,.86)),url("GirSomnath.jfif.jpeg") center/cover;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;z-index:110;transition:opacity .4s}
 #splash img{width:96px;height:96px;border-radius:50%;background:#fff;padding:6px;object-fit:contain}
 @media(max-width:640px){
  nav{position:fixed;bottom:0;left:0;right:0;justify-content:space-around;z-index:50;border-top:1px solid var(--line);border-bottom:0;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
@@ -79,7 +79,7 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
  <img id="hl" alt="Gujarat Vidyapith" src="logo.png" onerror="this.src='gujarat-vidyapith-logo.png'">
  <div>
   <h1>Poshan Yatra 2026</h1>
-  <p>Group G-051 · Gir Somnath · 27 students · 10 teams — Gujarat Vidyapith</p>
+  <p>Group G-051 · Gir Somnath · 26 students · 10 teams — Gujarat Vidyapith</p>
  </div>
  <div class="hm">
   <span class="live" id="liveBadge">Online</span> <span id="online">Ready</span><br>
@@ -148,6 +148,9 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
     <label>Activity 3</label><input class="act" placeholder="e.g. Height & Weight Measurement">
     <label>Activity 4</label><input class="act" placeholder="e.g. Poshan Dish Demonstration">
     <label>Activity 5</label><input class="act" placeholder="e.g. Drama / Street Play on Health">
+    <label>Day report</label>
+    <textarea id="fr" rows="5" placeholder="Describe the day's activities, participation, outcomes, and observations."></textarea>
+    <p class="mut" style="margin:5px 0 0"><button class="btn alt" type="button" id="voiceReport" style="padding:6px 10px;min-height:0">Speak report</button> <span id="voiceStatus"></span></p>
     <p style="margin-top:16px">
      <button class="btn" id="save">Save day report</button>
      <span class="mut" id="sv" style="margin-left:10px"></span>
@@ -158,6 +161,9 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
    <div class="note">Photos taken here are automatically stamped with the official Gujarat Vidyapith watermark, date-time, GPS coordinates, school name, team, and group. Fill school and address first.</div>
    <p>
     <button class="btn" id="snap">📷 Open camera</button>
+   </p>
+   <p style="margin-top:8px">
+    <label class="btn alt" style="margin:0;cursor:pointer">Upload from device<input id="galleryUpload" type="file" accept="image/*" multiple class="hide"></label>
    </p>
    <div class="ph" id="myph"></div>
   </div>
@@ -197,7 +203,7 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
    <h3>3 · Data Backup & Sync (JSON & Excel)</h3>
    <p class="mut">Export all reports and photos to Excel or JSON. Share JSON via WhatsApp to sync devices without internet.</p>
    <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="btn" id="xlAdmin">📥 Export Excel with Photos (.xlsx)</button> <button class="btn alt" id="xlAdminForm">📄 Export Form Only</button>
+    <button class="btn" id="pptAdmin">Export Dashboard PPT</button> <button class="btn" id="xlAdmin">📥 Export Excel with Photos (.xlsx)</button> <button class="btn alt" id="xlAdminForm">📄 Export Form Only</button>
     <button class="btn" id="expJson">💾 Export Backup (JSON)</button>
     <label class="btn alt" style="display:inline-flex;align-items:center;cursor:pointer;margin:0">
      📂 Import Backup (JSON) <input type="file" id="impJson" accept=".json" style="display:none">
@@ -1088,6 +1094,7 @@ async function loadCur(){
  $("#fpn").value=d?d.cname||"":"";
  $("#fpc").value=d?d.cphone||"":"";
  document.querySelectorAll(".act").forEach((a,i)=>a.value=d&&d.acts?d.acts[i]||"":"");
+ $("#fr").value=d&&d.report?d.report:"";
  if(d&&d.date)$("#fd").value=d.date;
  
  if(!d){
@@ -1120,6 +1127,7 @@ async function saveRep(){
   school:$("#fs").value.trim(),address:$("#fp").value.trim(),
   cname:$("#fpn").value.trim(),cphone:$("#fpc").value.trim(),
   acts:[...document.querySelectorAll(".act")].map(a=>a.value.trim()),
+  report:$("#fr").value.trim(),
   gps:pos?pos.latitude.toFixed(5)+","+pos.longitude.toFixed(5):(cur.gps||""),
   photos:cur.photos
  };
@@ -1143,6 +1151,27 @@ $("#save").onclick=async()=>{
  }
 };
 
+/* ---------- Voice-to-text day report ---------- */
+$("#voiceReport").onclick=()=>{
+ const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ const status=$("#voiceStatus");
+ if(!Recognition){status.textContent="Voice input is not supported in this browser.";return}
+ const recognition=new Recognition();
+ recognition.lang="en-IN";
+ recognition.interimResults=true;
+ recognition.continuous=false;
+ let finalText="";
+ status.textContent="Listening� speak your report.";
+ recognition.onresult=e=>{
+  let text="";
+  for(let i=e.resultIndex;i<e.results.length;i++)text+=e.results[i][0].transcript;
+  if(e.results[e.results.length-1].isFinal)finalText=text;
+  $("#fr").value=($("#fr").value+( $("#fr").value&&text?" ":"")+text).trim();
+ };
+ recognition.onerror=e=>{status.textContent="Voice input error: "+e.error;};
+ recognition.onend=()=>{if(!status.textContent.startsWith("Voice input error"))status.textContent=finalText?"Voice report added.":"Listening finished.";};
+ recognition.start();
+};
 function drawMine(){
  if(!me)return;
  $("#pc").textContent=cur.photos.length+"/10 today";
@@ -1428,7 +1457,7 @@ if($("#galleryUpload"))$("#galleryUpload").onchange=async e=>{
     LL.forEach((s,i)=>x2.fillText(s,textX3,h2-bh2+fs2*0.35+i*fs2*1.15,w2-textX3-12));
     c2.toBlob(async bl=>{
      try{
-      const a=await assets.upload(bl);
+      const a=await window._upload(bl);
       cur.photos.push({id:a.id,url:a.url,time:tm2,gps:g2});
       await saveRep();
       drawMine();
@@ -1442,8 +1471,36 @@ if($("#galleryUpload"))$("#galleryUpload").onchange=async e=>{
 };
 
 /* ---------- Designer PPT Export ---------- */
+async function ensurePptxLibrary(){
+ if(window.PptxGenJS)return window.PptxGenJS;
+ await new Promise((resolve,reject)=>{
+  const script=document.createElement("script");
+  script.src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js";
+  script.onload=resolve;
+  script.onerror=()=>reject(new Error("The PowerPoint library could not be loaded. Please check your internet connection."));
+  document.head.appendChild(script);
+ });
+ if(!window.PptxGenJS)throw new Error("The PowerPoint library did not start correctly.");
+ return window.PptxGenJS;
+}
+
+async function exportBasicDashboardPPT(){
+ const Ppt=await ensurePptxLibrary();
+ const pptx=new Ppt();
+ pptx.layout="LAYOUT_WIDE";
+ pptx.author="Gujarat Vidyapith";
+ const slide=pptx.addSlide();
+ slide.background={color:"F6F0E5"};
+ slide.addText("Poshan Yatra 2026",{x:0.55,y:0.55,w:8.5,h:0.65,fontSize:30,bold:true,color:"355C7D",fontFace:"Georgia"});
+ slide.addText("G-051 � Gir Somnath � Gujarat Vidyapith",{x:0.58,y:1.28,w:8,h:0.3,fontSize:13,color:"263B52"});
+ const stats=["Teams reporting: "+TEAMS.filter(t=>rep(t.id).length).length+"/"+TEAMS.length,"Students: "+NS,"Schools visited: "+new Set(reports.map(r=>(r.school||"").toLowerCase()).filter(Boolean)).size,"Photographs: "+reports.reduce((n,r)=>n+np(r),0)];
+ slide.addText(stats.map(x=>"� "+x).join("\n"),{x:0.7,y:2,w:7,h:2.4,fontSize:20,color:"355C7D"});
+ slide.addText("Generated "+new Date().toLocaleString("en-IN"),{x:0.7,y:6.6,w:6,h:0.3,fontSize:10,color:"6C6C6C"});
+ await pptx.writeFile({fileName:"PoshanYatra_G051_GirSomnath_Overview_"+today()+".pptx"});
+}
+
 async function exportDesignerPPT(){
- if(typeof PptxGenJS==="undefined"){toast("PPT library is loading, please wait…");return}
+ try{await ensurePptxLibrary();}catch(error){toast(error.message);return}
  toast("Generating designer PPT…");
 
  const pptx=new PptxGenJS();
@@ -1453,14 +1510,17 @@ async function exportDesignerPPT(){
  pptx.title="Poshan Yatra 2026 - G-051 Gir Somnath";
  pptx.layout="LAYOUT_WIDE";
 
- const BRAND_C="8B1E2D",BRAND2_C="6D1522",ACC_C="E8A33D",OK_C="2E7D4F",WHITE_C="FFFFFF",DARK_C="2B2220",LIGHT_C="FBF6EE";
+ const BRAND_C="355C7D",BRAND2_C="263B52",ACC_C="E8B27A",OK_C="789D79",WHITE_C="FFFDF8",DARK_C="263B52",LIGHT_C="F6F0E5";
+ const S={rect:(pptx.ShapeType&&pptx.ShapeType.rect)||(pptx.shapes&&pptx.shapes.RECTANGLE)||"rect",oval:(pptx.ShapeType&&pptx.ShapeType.ellipse)||(pptx.shapes&&pptx.shapes.OVAL)||"ellipse",roundRect:(pptx.ShapeType&&pptx.ShapeType.roundRect)||(pptx.shapes&&pptx.shapes.ROUNDED_RECTANGLE)||"roundRect"};
 
  // --- Slide 1: Title ---
  const s1=pptx.addSlide();
- s1.background={fill:BRAND2_C};
- s1.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
- s1.addShape(pptx.shapes.OVAL,{x:9.5,y:-1.5,w:5,h:5,fill:{color:BRAND_C,transparency:60}});
- s1.addShape(pptx.shapes.OVAL,{x:-1,y:4,w:3,h:3,fill:{color:ACC_C,transparency:70}});
+ s1.background={color:BRAND2_C};
+ s1.addShape(S.rect,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
+ s1.addShape(S.oval,{x:9.5,y:-1.5,w:5,h:5,fill:{color:BRAND_C,transparency:60}});
+ s1.addShape(S.oval,{x:-1,y:4,w:3,h:3,fill:{color:ACC_C,transparency:70}});
+ s1.addShape(S.oval,{x:7.8,y:4.8,w:4.1,h:2.2,fill:{color:"7AA6C2",transparency:72}});
+ s1.addShape(S.oval,{x:9.8,y:3.7,w:2.1,h:2.1,fill:{color:"D9917A",transparency:68}});
  try{
   if(logoImg&&logoImg.complete&&logoImg.naturalWidth){
    const lc=document.createElement("canvas");lc.width=logoImg.naturalWidth;lc.height=logoImg.naturalHeight;
@@ -1475,8 +1535,8 @@ async function exportDesignerPPT(){
 
  // --- Slide 2: KPI Overview ---
  const s2p=pptx.addSlide();
- s2p.background={fill:LIGHT_C};
- s2p.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
+ s2p.background={color:LIGHT_C};
+ s2p.addShape(S.rect,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
  s2p.addText("Dashboard Overview",{x:0.5,y:0.3,w:8,h:0.6,fontSize:28,bold:true,color:BRAND_C,fontFace:"Georgia"});
  const actT=TEAMS.filter(t=>rep(t.id).length).length;
  const schoolsT=new Set(reports.map(r=>(r.school||"").toLowerCase()).filter(Boolean)).size;
@@ -1485,7 +1545,7 @@ async function exportDesignerPPT(){
  const kpis=[{label:"Teams Reporting",value:actT+"/"+TEAMS.length,icon:"📊"},{label:"Total Students",value:NS+"",icon:"🎓"},{label:"Schools Visited",value:schoolsT+"",icon:"🏫"},{label:"Photographs",value:totalPhotosT+"",icon:"📷"},{label:"Latest Day",value:maxDayT?"Day "+maxDayT:"–",icon:"📅"}];
  kpis.forEach((k,i)=>{
   const xp=0.4+i*2.5;
-  s2p.addShape(pptx.shapes.ROUNDED_RECTANGLE,{x:xp,y:1.2,w:2.2,h:1.8,fill:{color:WHITE_C},shadow:{type:"outer",blur:6,offset:2,color:"00000020"},rectRadius:0.15});
+  s2p.addShape(S.roundRect,{x:xp,y:1.2,w:2.2,h:1.8,fill:{color:WHITE_C},shadow:{type:"outer",blur:6,offset:2,color:"00000020"},rectRadius:0.15});
   s2p.addText(k.icon,{x:xp,y:1.35,w:2.2,h:0.5,fontSize:24,align:"center"});
   s2p.addText(k.value,{x:xp,y:1.8,w:2.2,h:0.6,fontSize:28,bold:true,color:BRAND_C,align:"center",fontFace:"Georgia"});
   s2p.addText(k.label,{x:xp,y:2.4,w:2.2,h:0.4,fontSize:10,color:"7A6C66",align:"center",fontFace:"Segoe UI"});
@@ -1493,8 +1553,8 @@ async function exportDesignerPPT(){
 
  // --- Slide 3: Taluka Summary ---
  const s3p=pptx.addSlide();
- s3p.background={fill:LIGHT_C};
- s3p.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
+ s3p.background={color:LIGHT_C};
+ s3p.addShape(S.rect,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
  s3p.addText("Taluka-wise Summary",{x:0.5,y:0.3,w:8,h:0.6,fontSize:28,bold:true,color:BRAND_C,fontFace:"Georgia"});
  const tblHead=[[{text:"Taluka",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Teams",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Students",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Reports",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Photos",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}}]];
  const tblRows=TALUKAS.map(k=>{
@@ -1507,9 +1567,9 @@ async function exportDesignerPPT(){
  for(const taluka of TALUKAS){
   const ts=TEAMS.filter(t=>t.t==taluka);
   const sl=pptx.addSlide();
-  sl.background={fill:WHITE_C};
-  sl.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
-  sl.addShape(pptx.shapes.RECTANGLE,{x:0,y:0.08,w:"100%",h:0.8,fill:{color:BRAND_C}});
+  sl.background={color:WHITE_C};
+  sl.addShape(S.rect,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
+  sl.addShape(S.rect,{x:0,y:0.08,w:"100%",h:0.8,fill:{color:BRAND_C}});
   sl.addText(taluka+" Teams",{x:0.5,y:0.15,w:8,h:0.6,fontSize:24,bold:true,color:WHITE_C,fontFace:"Georgia"});
   sl.addText(ts.length+" team(s) · "+ts.reduce((n,t)=>n+t.m.length,0)+" students",{x:0.5,y:0.55,w:8,h:0.3,fontSize:11,color:ACC_C,fontFace:"Segoe UI"});
   const teamHead=[[{text:"Team",options:{bold:true,color:WHITE_C,fill:{color:BRAND2_C}}},{text:"Members",options:{bold:true,color:WHITE_C,fill:{color:BRAND2_C}}},{text:"Days",options:{bold:true,color:WHITE_C,fill:{color:BRAND2_C}}},{text:"Last School",options:{bold:true,color:WHITE_C,fill:{color:BRAND2_C}}},{text:"Photos",options:{bold:true,color:WHITE_C,fill:{color:BRAND2_C}}}]];
@@ -1524,8 +1584,8 @@ async function exportDesignerPPT(){
   for(let ch=0;ch<rsPPT.length;ch+=chSize){
    const chunk=rsPPT.slice(ch,ch+chSize);
    const sl=pptx.addSlide();
-   sl.background={fill:LIGHT_C};
-   sl.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
+   sl.background={color:LIGHT_C};
+   sl.addShape(S.rect,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
    sl.addText("Day-wise Reports",{x:0.5,y:0.2,w:8,h:0.5,fontSize:22,bold:true,color:BRAND_C,fontFace:"Georgia"});
    const rHead=[[{text:"Day",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Date",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Team",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"School",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Type",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Address",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}},{text:"Photos",options:{bold:true,color:WHITE_C,fill:{color:BRAND_C}}}]];
    const rRows=chunk.map(r=>[{text:"Day "+r.day},{text:r.date||""},{text:r.team||""},{text:r.school||""},{text:r.schoolType||"—"},{text:r.address||""},{text:np(r)+"/10"}]);
@@ -1539,8 +1599,8 @@ async function exportDesignerPPT(){
   for(let ch=0;ch<Math.min(allPhotosPPT.length,40);ch+=4){
    const chunk=allPhotosPPT.slice(ch,ch+4);
    const sl=pptx.addSlide();
-   sl.background={fill:WHITE_C};
-   sl.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
+   sl.background={color:WHITE_C};
+   sl.addShape(S.rect,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
    sl.addText("Photo Gallery",{x:0.5,y:0.2,w:6,h:0.5,fontSize:20,bold:true,color:BRAND_C,fontFace:"Georgia"});
    const positions=[{x:0.3,y:0.9,w:6,h:3},{x:6.6,y:0.9,w:6,h:3},{x:0.3,y:4.2,w:6,h:3},{x:6.6,y:4.2,w:6,h:3}];
    for(let i=0;i<chunk.length;i++){
@@ -1561,9 +1621,9 @@ async function exportDesignerPPT(){
 
  // --- Thank You Slide ---
  const sLast=pptx.addSlide();
- sLast.background={fill:BRAND2_C};
- sLast.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
- sLast.addShape(pptx.shapes.OVAL,{x:10,y:4,w:4,h:4,fill:{color:BRAND_C,transparency:50}});
+ sLast.background={color:BRAND2_C};
+ sLast.addShape(S.rect,{x:0,y:0,w:"100%",h:0.08,fill:{color:ACC_C}});
+ sLast.addShape(S.oval,{x:10,y:4,w:4,h:4,fill:{color:BRAND_C,transparency:50}});
  sLast.addText("Thank You!",{x:0,y:2.5,w:"100%",h:1.2,fontSize:48,bold:true,color:WHITE_C,align:"center",fontFace:"Georgia"});
  sLast.addText("Poshan Yatra 2026 · Gujarat Vidyapith · G-051 Gir Somnath",{x:0,y:3.8,w:"100%",h:0.5,fontSize:16,color:ACC_C,align:"center",fontFace:"Segoe UI"});
  sLast.addText("Generated on "+new Date().toLocaleString("en-IN"),{x:0,y:6.5,w:"100%",h:0.3,fontSize:10,color:WHITE_C,align:"center",transparency:40,fontFace:"Segoe UI"});
@@ -1572,7 +1632,10 @@ async function exportDesignerPPT(){
   await pptx.writeFile({fileName:"PoshanYatra_G051_GirSomnath_"+today()+".pptx"});
   toast("Designer PPT downloaded successfully! ✓");
  }catch(e){
-  toast("PPT export failed: "+(e.message||e));
+  console.error("Designer PPT export failed:",e);
+  toast("Creating a compatible PPT export�");
+  try{await exportBasicDashboardPPT();toast("Compatible PPT downloaded successfully.");}
+  catch(fallbackError){toast("PPT export failed: "+(fallbackError.message||fallbackError));}
  }
 }
 

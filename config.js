@@ -3,3 +3,8 @@
 // This must be the project's API URL, not the Supabase dashboard URL.
 window.SUPABASE_URL  = "https://gesoexqymqjszldrjrao.supabase.co";
 window.SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdlc29leHF5bXFqc3psZHJqcmFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3NDYxNDksImV4cCI6MjEwODMyMjE0OX0.9bsJf5lLQgSIVd9TVtLouTXFHP9Bt_pDKlKUEoQAFj0";        // public anon/service key
+
+
+// Simple client-side administrator login (change these values when sharing the app).
+window.ADMIN_USERNAME = "admin_g051";
+window.ADMIN_PASSWORD = "Admin@2026";

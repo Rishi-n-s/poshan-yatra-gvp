@@ -83,7 +83,7 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
  </div>
  <div class="hm">
   <span class="live" id="liveBadge">Online</span> <span id="online">Ready</span><br>
-  <span id="upd">Synced</span>
+  <span id="upd">Synced</span> <span id="roleStatus" class="tag" style="margin-left:4px">Guest</span>
  </div>
 </header>
 
@@ -100,8 +100,8 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
  
  <section id="field" class="hide">
   <div id="login" class="card" style="max-width:440px;margin:0 auto">
-   <h3>Team Login</h3>
-   <p class="mut">Select your team or enter credentials below.</p>
+   <h3>Student Login</h3>
+   <p class="mut">Students can upload and view their own team's reports.</p>
    <label>Quick Team Select</label>
    <select id="quickTeam">
     <option value="">-- Choose your team --</option>
@@ -164,7 +164,19 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
  </section>
  
  <section id="admin" class="hide">
-  <div class="card">
+  <div id="adminLogin" class="card" style="max-width:440px;margin:0 auto">
+   <h3>Administrator Login</h3>
+   <p class="mut">Administrators can manage all data and download backups.</p>
+   <label>Username</label><input id="au" autocapitalize="off" autocorrect="off" autocomplete="username">
+   <label>Password</label><input id="ap" type="password" autocomplete="current-password">
+   <p style="margin-top:14px"><button class="btn" id="algo">Sign in as Admin</button><span id="aerr" class="mut" style="color:var(--brand);margin-left:8px"></span></p>
+  </div>
+  <div id="adminPanel" class="hide">
+   <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <div><h3>Administrator controls</h3><p class="mut" style="margin:2px 0 0">You can manage, export, import, and clear all project data.</p></div>
+    <button class="btn alt" id="adminOut" style="padding:4px 10px;min-height:0">Sign out</button>
+   </div>
+  <div class="card" style="margin-top:14px">
    <h3>1 · Watermark Logo</h3>
    <p class="mut">Default watermark is Gujarat Vidyapith logo (<code>logo.png</code>). Upload another if needed.</p>
    <input type="file" id="lf" accept="image/*">
@@ -198,6 +210,7 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
   <div class="card" style="margin-top:14px">
    <h3>4 · Cloud Sync Status (Firebase)</h3>
    <p class="mut" id="fbStatusText">Checking cloud connection status…</p>
+  </div>
   </div>
  </section>
 </main>
@@ -251,7 +264,7 @@ const TEAMS=[
 ];
 const TALUKAS=["Kodinar","Talala","Una","Veraval","Sutrapada"],DAYS=12,NS=TEAMS.reduce((n,t)=>n+t.m.length,0);
 
-let me=null,reports=[],teams={},logoUrl="logo.png",logoImg=null,openD=new Set(),pos=null,cur={photos:[]},fT="",fD="";
+let me=null,role="guest",reports=[],teams={},logoUrl="logo.png",logoImg=null,openD=new Set(),pos=null,cur={photos:[]},fT="",fD="";
 let _supa=null; // Supabase client (null = offline/local mode)
 
 const $=s=>document.querySelector(s);
@@ -266,6 +279,16 @@ function toast(m){
  tt=setTimeout(()=>e.style.display="none",3500);
 }
 
+const isAdmin=()=>role==="admin";
+function updateRoleUI(){
+ const status=$("#roleStatus");
+ if(status){
+  status.textContent=isAdmin()?"Admin":me?"Student":"Guest";
+  status.className="tag"+(isAdmin()?" ok":"");
+ }
+ const adminButton=$("#tAdmin");
+ if(adminButton)adminButton.lastChild.textContent=isAdmin()?"Admin":"Admin login";
+}
 /* ---------- Local Storage / IndexedDB Storage Layer ---------- */
 const IDB_NAME="PoshanYatraDB",IDB_VER=1;
 let idb=null;
@@ -397,9 +420,14 @@ const localAssets={
 
 /* ---------- Initialization ---------- */
 function tab(t){
+ if(t==="admin"){
+  $("#adminLogin").classList.toggle("hide",isAdmin());
+  $("#adminPanel").classList.toggle("hide",!isAdmin());
+ }
  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x.dataset.t==t));
  ["dash","field","admin"].forEach(s=>$("#"+s).classList.toggle("hide",s!=t));
  try{localStorage.setItem("py_tab",t)}catch(e){}
+ if(t==="dash")drawDash();
  scrollTo(0,0);
 }
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>tab(b.dataset.t));
@@ -457,6 +485,8 @@ function updateTeamQuickSelect(){
 
  try{
   const t=localStorage.getItem("py_tab");
+  if(localStorage.getItem("py_admin")==="1")role="admin";
+  updateRoleUI();
   if(t)tab(t);
   if(/Android|iPhone|iPad/i.test(navigator.userAgent)&&!localStorage.getItem("py_hint")){
    $("#hint").classList.remove("hide");
@@ -625,8 +655,7 @@ function drawDash(){
 
  $("#ft").onchange=e=>{fT=e.target.value;drawDash()};
  $("#fdd").onchange=e=>{fD=e.target.value;drawDash()};
- $("#xl").onclick=excelWithPhotos;
- $("#xlForm").onclick=excelFormOnly;
+ if(isAdmin()){ $("#xl").onclick=excelWithPhotos; $("#xlForm").onclick=excelFormOnly; }else{ $("#xl").remove(); $("#xlForm").remove(); }
  document.querySelectorAll("#dash .edit-report").forEach(b=>b.onclick=()=>{
   const report=reports.find(r=>r.id===b.dataset.edit);
   if(!report)return;
@@ -1001,6 +1030,27 @@ $("#lout").onclick=()=>{
  $("#login").classList.remove("hide");
 };
 
+$("#algo").onclick=()=>{
+ const user=$("#au").value.trim(),pass=$("#ap").value;
+ const expectedUser=window.ADMIN_USERNAME||"admin_g051";
+ const expectedPass=window.ADMIN_PASSWORD||"Admin@2026";
+ if(user!==expectedUser||pass!==expectedPass){
+  $("#aerr").textContent="Wrong administrator username or password";
+  return;
+ }
+ role="admin";me=null;
+ $("#aerr").textContent="";
+ try{localStorage.setItem("py_admin","1");localStorage.removeItem("py_me")}catch(e){}
+ updateRoleUI();
+ tab("admin");
+};
+
+$("#adminOut").onclick=()=>{
+ role="guest";
+ try{localStorage.removeItem("py_admin")}catch(e){}
+ updateRoleUI();
+ tab("admin");
+};
 function showForm(){
  $("#login").classList.add("hide");
  $("#form").classList.remove("hide");
@@ -1271,7 +1321,7 @@ $("#lf").onchange=async e=>{
 // Admin Excel Export
 $("#xlAdmin").onclick=excelWithPhotos;
 $("#xlAdminForm").onclick=excelFormOnly;
-$("#pptAdmin").onclick=exportDesignerPPT;
+if($("#pptAdmin"))$("#pptAdmin").onclick=exportDesignerPPT;
 $("#zipAdmin").onclick=()=>{
  const sel=$("#zipAdminTeam");
  if(sel){

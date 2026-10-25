@@ -1,5 +1,5 @@
 // Bump this whenever a deployed static asset needs to replace an older cached copy.
-const C = "py-v6";
+const C = "py-v7";
 const A = [
   "./",
   "index.html",
@@ -28,7 +28,7 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
   const url = e.request.url;
-  if (url.includes("firestore.googleapis.com") || url.includes("firebasestorage.googleapis.com")) return;
+  if (url.includes("supabase.co") || url.includes("firestore.googleapis.com") || url.includes("firebasestorage.googleapis.com")) return;
 
   e.respondWith(
     caches.match(e.request).then(cached => {

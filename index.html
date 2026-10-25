@@ -599,9 +599,28 @@ addEventListener("offline",()=>{
  const l=$("#liveBadge");if(l){l.className="live off";l.textContent="Offline"}
  $("#upd").textContent="Offline mode active (Local storage ready)";
 });
-addEventListener("online",()=>{
+addEventListener("online",async()=>{
  const l=$("#liveBadge");if(l){l.className="live";l.textContent=_supa?"Cloud Live":"Active"}
- toast("Back online — syncing");
+ toast("Back online — syncing reports...");
+ if(_supa){
+  try{
+   const localReps=await idbGetAll("reports");
+   for(const r of localReps){
+    try{
+     let p={...r};
+     let {error}=await _supa.from("reports").upsert(p,{onConflict:"id"});
+     if(error&&error.message&&error.message.includes("Could not find the 'report' column")){
+      const fallbackActs=[...(r.acts||[])];
+      if(r.report)fallbackActs[5]="[REPORT]: "+r.report;
+      delete p.report;
+      p.acts=fallbackActs;
+      await _supa.from("reports").upsert(p,{onConflict:"id"});
+     }
+    }catch(e){}
+   }
+   if(typeof fetchReports==="function")await fetchReports();
+  }catch(err){}
+ }
 });
 
 /* ---------- Dashboard ---------- */
@@ -1158,42 +1177,56 @@ async function saveRep(){
   photos:cur.photos
  };
 
+ // Always save to local IndexedDB first so field data is never lost
+ await localDb.doc("reports/"+rid()).set(d);
+
+ let cloudSynced=false;
  if(_supa){
-  let payload={...d,id:rid()};
-  let {error}=await _supa.from("reports").upsert(payload,{onConflict:"id"});
-  if(error&&error.message&&error.message.includes("Could not find the 'report' column")){
-   // Schema cache does not have 'report' column: store report inside acts array at index 5
-   const fallbackActs=[...rawActs];
-   if(repText)fallbackActs[5]="[REPORT]: "+repText;
-   const fallbackPayload={...payload,acts:fallbackActs};
-   delete fallbackPayload.report;
-   const res2=await _supa.from("reports").upsert(fallbackPayload,{onConflict:"id"});
-   if(res2.error)throw new Error(res2.error.message);
-  }else if(error){
-   if(error.message&&error.message.includes("in the schema cache")){
-    const match=error.message.match(/Could not find the '([^']+)' column/);
-    if(match&&match[1]){
-     const missingCol=match[1];
-     delete payload[missingCol];
-     const res3=await _supa.from("reports").upsert(payload,{onConflict:"id"});
-     if(res3.error)throw new Error(res3.error.message);
+  try{
+   let payload={...d,id:rid()};
+   let {error}=await _supa.from("reports").upsert(payload,{onConflict:"id"});
+   if(error&&error.message&&error.message.includes("Could not find the 'report' column")){
+    // Schema cache does not have 'report' column: store report inside acts array at index 5
+    const fallbackActs=[...rawActs];
+    if(repText)fallbackActs[5]="[REPORT]: "+repText;
+    const fallbackPayload={...payload,acts:fallbackActs};
+    delete fallbackPayload.report;
+    const res2=await _supa.from("reports").upsert(fallbackPayload,{onConflict:"id"});
+    if(res2.error)throw new Error(res2.error.message);
+   }else if(error){
+    if(error.message&&error.message.includes("in the schema cache")){
+     const match=error.message.match(/Could not find the '([^']+)' column/);
+     if(match&&match[1]){
+      const missingCol=match[1];
+      delete payload[missingCol];
+      const res3=await _supa.from("reports").upsert(payload,{onConflict:"id"});
+      if(res3.error)throw new Error(res3.error.message);
+     }else{
+      throw new Error(error.message);
+     }
     }else{
      throw new Error(error.message);
     }
-   }else{
-    throw new Error(error.message);
    }
+   cloudSynced=true;
+  }catch(netErr){
+   console.warn("Cloud sync deferred due to network/fetch error:", netErr);
+   return {...d, _offline:true};
   }
  }
- await localDb.doc("reports/"+rid()).set(d);
- return d;
+ return {...d, _cloud:cloudSynced};
 }
 
 $("#save").onclick=async()=>{
  try{
-  await saveRep();
-  $("#sv").textContent="Saved ✓";
-  toast("Report saved successfully!");
+  const res=await saveRep();
+  if(res&&res._offline){
+   $("#sv").textContent="Saved on device (Offline) ✓";
+   toast("Report saved safely on device! (Offline mode)");
+  }else{
+   $("#sv").textContent="Saved ✓";
+   toast("Report saved successfully!");
+  }
   setTimeout(()=>$("#sv").textContent="",3000);
  }catch(e){
   $("#sv").textContent="Could not save: "+(e.message||e);

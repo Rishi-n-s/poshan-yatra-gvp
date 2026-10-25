@@ -118,6 +118,13 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
   
   <div id="form" class="hide">
    <div class="card">
+    <div id="adminTeamBanner" class="hide" style="margin-bottom:12px;padding:10px 12px;background:#fff1f2;border:1px solid #fecdd3;border-radius:8px">
+     <div style="font-weight:600;color:var(--brand);margin-bottom:6px">👑 Administrator Mode — Managing Team Data</div>
+     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <label style="margin:0;font-size:13px;white-space:nowrap">Select Team to Add/Edit:</label>
+      <select id="adminTeamSelect" style="flex:1;min-width:180px;padding:6px 8px;font-size:13px"></select>
+     </div>
+    </div>
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
      <b id="who" style="font-size:17px"></b>
      <button class="btn alt" id="lout" style="padding:4px 10px;min-height:0">Sign out</button>
@@ -181,6 +188,23 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
    <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
     <div><h3>Administrator controls</h3><p class="mut" style="margin:2px 0 0">You can manage, export, import, and clear all project data.</p></div>
     <button class="btn alt" id="adminOut" style="padding:4px 10px;min-height:0">Sign out</button>
+   </div>
+   <div class="card" style="margin-top:14px;background:#fefefe;border:1px solid #fed7aa;border-left:4px solid var(--acc)">
+    <h3>Quick Data Entry &amp; Edit (Administrator)</h3>
+    <p class="mut">Add or update day reports and photographs for any team directly without needing team passwords.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px">
+     <div style="flex:1;min-width:180px">
+      <label style="font-size:12px;margin-bottom:3px">Team</label>
+      <select id="adminAddTeam"></select>
+     </div>
+     <div style="width:120px">
+      <label style="font-size:12px;margin-bottom:3px">Day</label>
+      <select id="adminAddDay"></select>
+     </div>
+     <div style="align-self:flex-end">
+      <button class="btn" id="adminGoAdd" style="white-space:nowrap">Open Form &amp; Enter Data</button>
+     </div>
+    </div>
    </div>
   <div class="card" style="margin-top:14px">
    <h3>1 · Watermark Logo</h3>
@@ -430,6 +454,10 @@ function tab(t){
   $("#adminLogin").classList.toggle("hide",isAdmin());
   $("#adminPanel").classList.toggle("hide",!isAdmin());
  }
+ if(t==="field"&&isAdmin()&&!me){
+  me=TEAMS[0].id;
+  showForm();
+ }
  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x.dataset.t==t));
  ["dash","field","admin"].forEach(s=>$("#"+s).classList.toggle("hide",s!=t));
  try{localStorage.setItem("py_tab",t)}catch(e){}
@@ -461,21 +489,48 @@ async function initDefaultLogins(){
 
 function updateTeamQuickSelect(){
  const sel=$("#quickTeam");
- if(!sel)return;
- sel.innerHTML=`<option value="">-- Choose your team --</option>`+
-  TEAMS.map(t=>{
-   const cred=teams[t.id];
-   const u=cred?cred.user:("gir_"+t.id);
-   const p=cred&&cred.pass?cred.pass:t.id;
-   return `<option value="${t.id}" data-u="${esc(u)}" data-p="${esc(p)}">${esc(t.n)} (${esc(u)})</option>`;
-  }).join("");
- sel.onchange=()=>{
-  const opt=sel.options[sel.selectedIndex];
-  if(opt&&opt.value){
-   $("#lu").value=opt.dataset.u||"";
-   $("#lp").value=opt.dataset.p||"";
-  }
- };
+ if(sel){
+  sel.innerHTML=`<option value="">-- Choose your team --</option>`+
+   TEAMS.map(t=>{
+    const cred=teams[t.id];
+    const u=cred?cred.user:("gir_"+t.id);
+    const p=cred&&cred.pass?cred.pass:t.id;
+    return `<option value="${t.id}" data-u="${esc(u)}" data-p="${esc(p)}">${esc(t.n)} (${esc(u)})</option>`;
+   }).join("");
+  sel.onchange=()=>{
+   const opt=sel.options[sel.selectedIndex];
+   if(opt&&opt.value){
+    $("#lu").value=opt.dataset.u||"";
+    $("#lp").value=opt.dataset.p||"";
+    if(isAdmin()){
+     me=opt.value;
+     showForm();
+    }
+   }
+  };
+ }
+
+ const aTeam=$("#adminAddTeam");
+ if(aTeam){
+  aTeam.innerHTML=TEAMS.map(t=>`<option value="${t.id}">${t.n} (${t.t})</option>`).join("");
+ }
+ const aDay=$("#adminAddDay");
+ if(aDay){
+  aDay.innerHTML=Array.from({length:DAYS},(_,i)=>`<option value="${i+1}">Day ${i+1}</option>`).join("");
+ }
+ const aBtn=$("#adminGoAdd");
+ if(aBtn){
+  aBtn.onclick=()=>{
+   const tId=$("#adminAddTeam").value;
+   const dNum=$("#adminAddDay").value;
+   if(!tId)return;
+   me=tId;
+   tab("field");
+   showForm();
+   $("#fday").value=dNum;
+   loadCur();
+  };
+ }
 }
 
 (async()=>{
@@ -686,8 +741,11 @@ function drawDash(){
       <td data-label="School">${esc(r.school)}</td>
       <td data-label="Address">${esc(r.address)}</td>
       <td data-label="Contact">${esc(r.cname)}</td>
-      <td data-label="Number">${esc(r.cphone)}</td>
-      <td data-label="Photos">${np(r)}/10</td><td data-label="Action"><button class="btn alt edit-report" data-edit="${esc(r.id)}" style="font-size:12px;padding:6px 10px">${me===r.team_id?"Edit":"Open"}</button></td>
+      <td data-label="Photos">${np(r)}/10</td>
+      <td data-label="Action" style="white-space:nowrap">
+        <button class="btn alt edit-report" data-edit="${esc(r.id)}" style="font-size:12px;padding:5px 8px">${isAdmin()||me===r.team_id?"Edit":"Open"}</button>
+        ${isAdmin()?`<button class="btn alt delete-report" data-del="${esc(r.id)}" style="font-size:12px;padding:5px 8px;color:#d32f2f;border-color:#d32f2f55;margin-left:4px">Delete</button>`:""}
+      </td>
      </tr>`).join("")||'<tr><td colspan="9" class="mut" style="text-align:center;padding:16px">No reports recorded yet. Go to Team entry to record a day!</td></tr>'}
    </table>
   </div>
@@ -702,14 +760,41 @@ function drawDash(){
  document.querySelectorAll("#dash .edit-report").forEach(b=>b.onclick=()=>{
   const report=reports.find(r=>r.id===b.dataset.edit);
   if(!report)return;
-  if(me!==report.team_id){
+  if(!isAdmin()&&me!==report.team_id){
    tab("field");
    toast("Log in as "+report.team+" to edit this report.");
    return;
   }
+  if(isAdmin()){
+   me=report.team_id;
+   showForm();
+  }
   $("#fday").value=report.day;
   tab("field");
   loadCur();
+ });
+ document.querySelectorAll("#dash .delete-report").forEach(b=>b.onclick=async()=>{
+  const report=reports.find(r=>r.id===b.dataset.del);
+  if(!report)return;
+  if(!confirm("Admin Delete: Are you sure you want to permanently delete Day "+report.day+" report for "+report.team+"?"))return;
+  try{
+   if(_supa){
+    const {error}=await _supa.from("reports").delete().eq("id",report.id);
+    if(error)throw new Error(error.message);
+    if(report.photos&&report.photos.length){
+     try{
+      const keys=report.photos.map(p=>p.id||p.url.split("/").pop()).filter(Boolean);
+      if(keys.length)await _supa.storage.from("photos").remove(keys);
+     }catch(e){}
+    }
+   }
+   await localDb.doc("reports/"+report.id).delete();
+   reports=reports.filter(r=>r.id!==report.id);
+   toast("Report deleted successfully! ✓");
+   drawDash();
+  }catch(err){
+   toast("Delete failed: "+(err.message||err));
+  }
  });
  
  document.querySelectorAll("#dash .ph img").forEach(i=>i.onclick=()=>{
@@ -1097,6 +1182,22 @@ $("#adminOut").onclick=()=>{
 function showForm(){
  $("#login").classList.add("hide");
  $("#form").classList.remove("hide");
+ 
+ const adminBanner=$("#adminTeamBanner");
+ if(adminBanner){
+  adminBanner.classList.toggle("hide",!isAdmin());
+  if(isAdmin()){
+   const sel=$("#adminTeamSelect");
+   if(sel){
+    sel.innerHTML=TEAMS.map(t=>`<option value="${t.id}" ${t.id===me?"selected":""}>${t.n} (${t.t})</option>`).join("");
+    sel.onchange=e=>{
+     me=e.target.value;
+     showForm();
+    };
+   }
+  }
+ }
+ 
  const t=T(me);
  $("#who").textContent=MAIN+" · "+t.n;
  $("#mem").textContent="Members: "+t.m.map(m=>m.split("|")[0]).join(", ");
@@ -1523,10 +1624,26 @@ $("#impJson").onchange=async e=>{
 // Clear All Data
 $("#clrData").onclick=async()=>{
  if(!confirm("Are you sure you want to delete all reports and photographs? (Make sure you exported an Excel or JSON backup first!)"))return;
- if(!confirm("Please confirm again to delete ALL local data."))return;
- await idbClear("reports");
- notify("reports");
- toast("All report data cleared.");
+ if(!confirm("Please confirm again to delete ALL data permanently from cloud and device."))return;
+ try{
+  if(_supa){
+   await _supa.from("reports").delete().neq("id","placeholder_none");
+   try{
+    const listRes=await _supa.storage.from("photos").list("",{limit:100});
+    if(listRes.data&&listRes.data.length){
+     const names=listRes.data.map(f=>f.name);
+     await _supa.storage.from("photos").remove(names);
+    }
+   }catch(e){}
+  }
+  await idbClear("reports");
+  reports=[];
+  notify("reports");
+  drawDash();
+  toast("All reports and photos permanently cleared! ✓");
+ }catch(err){
+  toast("Failed to clear data: "+(err.message||err));
+ }
 };
 
 /* ---------- Gallery Upload Handler ---------- */

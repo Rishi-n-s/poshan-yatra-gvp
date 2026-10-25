@@ -505,20 +505,38 @@ function updateTeamQuickSelect(){
  if(sbUrl&&sbAnon&&!/PASTE/.test(sbUrl)){
   _supa=supabase.createClient(sbUrl,sbAnon);
 
-  // Helper: upload blob to Supabase Storage
+  // Helper: upload blob to Supabase Storage with offline fallback
   window._upload=async(blob)=>{
    const ext=blob.type.includes("png")?"png":"jpeg";
-   const name="photos/"+Date.now()+"_"+Math.random().toString(36).slice(2,8)+"."+ext;
-   const{error}=await _supa.storage.from("photos").upload(name,blob,{contentType:blob.type,upsert:false});
-   if(error)throw error;
-   const{data:{publicUrl}}=_supa.storage.from("photos").getPublicUrl(name);
-   return{id:name,url:publicUrl,sizeBytes:blob.size};
+   const name=Date.now()+"_"+Math.random().toString(36).slice(2,8)+"."+ext;
+   if(_supa){
+    try{
+     const{error}=await _supa.storage.from("photos").upload(name,blob,{contentType:blob.type,upsert:false});
+     if(!error){
+      const{data:{publicUrl}}=_supa.storage.from("photos").getPublicUrl(name);
+      return{id:name,url:publicUrl,sizeBytes:blob.size};
+     }
+     console.warn("Supabase photo storage upload error, using local fallback:", error);
+    }catch(storageErr){
+     console.warn("Supabase storage exception, using local fallback:", storageErr);
+    }
+   }
+   return await localAssets.upload(blob);
   };
 
   // Fetch helpers
   const fetchReports=async()=>{
    const{data}=await _supa.from("reports").select("*").order("day");
-   if(data){reports=data.map(d=>({...d,photos:d.photos||[]}));drawDash();drawMine();}
+   if(data){
+    reports=data.map(d=>{
+     let rep=d.report||"";
+     if(!rep&&d.acts&&d.acts[5]&&typeof d.acts[5]==="string"&&d.acts[5].startsWith("[REPORT]: ")){
+      rep=d.acts[5].slice(10);
+     }
+     return {...d,report:rep,photos:d.photos||[]};
+    });
+    drawDash();drawMine();
+   }
    $("#upd").textContent="Updated "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
    $("#liveBadge").className="live";
   };
@@ -1090,11 +1108,16 @@ async function loadCur(){
  cur.photos=cur.photos||[];
  
  $("#fs").value=d?d.school||"":"";
+ if($("#fst"))$("#fst").value=d?(d.school_type||d.schoolType||""):"";
  $("#fp").value=d?d.address||"":"";
  $("#fpn").value=d?d.cname||"":"";
  $("#fpc").value=d?d.cphone||"":"";
  document.querySelectorAll(".act").forEach((a,i)=>a.value=d&&d.acts?d.acts[i]||"":"");
- $("#fr").value=d&&d.report?d.report:"";
+ let repVal=d&&d.report?d.report:"";
+ if(!repVal&&d&&d.acts&&d.acts[5]&&typeof d.acts[5]==="string"&&d.acts[5].startsWith("[REPORT]: ")){
+  repVal=d.acts[5].slice(10);
+ }
+ $("#fr").value=repVal;
  if(d&&d.date)$("#fd").value=d.date;
  
  if(!d){
@@ -1122,21 +1145,47 @@ $("#form").addEventListener("input",()=>{
 
 async function saveRep(){
  const t=T(me);
+ const rawActs=[...document.querySelectorAll(".act")].map(a=>a.value.trim());
+ const repText=$("#fr")?$("#fr").value.trim():"";
+ const sType=$("#fst")?$("#fst").value:"";
  const d={
   group:MAIN,team_id:me,taluka:t.t,team:t.n,day:+$("#fday").value,date:$("#fd").value,
-  school:$("#fs").value.trim(),address:$("#fp").value.trim(),
+  school:$("#fs").value.trim(),school_type:sType,address:$("#fp").value.trim(),
   cname:$("#fpn").value.trim(),cphone:$("#fpc").value.trim(),
-  acts:[...document.querySelectorAll(".act")].map(a=>a.value.trim()),
-  report:$("#fr").value.trim(),
+  acts:rawActs,
+  report:repText,
   gps:pos?pos.latitude.toFixed(5)+","+pos.longitude.toFixed(5):(cur.gps||""),
   photos:cur.photos
  };
+
  if(_supa){
-  const {error}=await _supa.from("reports").upsert({...d,id:rid()},{onConflict:"id"});
-  if(error)throw new Error(error.message);
- }else{
-  await localDb.doc("reports/"+rid()).set(d);
+  let payload={...d,id:rid()};
+  let {error}=await _supa.from("reports").upsert(payload,{onConflict:"id"});
+  if(error&&error.message&&error.message.includes("Could not find the 'report' column")){
+   // Schema cache does not have 'report' column: store report inside acts array at index 5
+   const fallbackActs=[...rawActs];
+   if(repText)fallbackActs[5]="[REPORT]: "+repText;
+   const fallbackPayload={...payload,acts:fallbackActs};
+   delete fallbackPayload.report;
+   const res2=await _supa.from("reports").upsert(fallbackPayload,{onConflict:"id"});
+   if(res2.error)throw new Error(res2.error.message);
+  }else if(error){
+   if(error.message&&error.message.includes("in the schema cache")){
+    const match=error.message.match(/Could not find the '([^']+)' column/);
+    if(match&&match[1]){
+     const missingCol=match[1];
+     delete payload[missingCol];
+     const res3=await _supa.from("reports").upsert(payload,{onConflict:"id"});
+     if(res3.error)throw new Error(res3.error.message);
+    }else{
+     throw new Error(error.message);
+    }
+   }else{
+    throw new Error(error.message);
+   }
+  }
  }
+ await localDb.doc("reports/"+rid()).set(d);
  return d;
 }
 
@@ -1161,7 +1210,7 @@ $("#voiceReport").onclick=()=>{
  recognition.interimResults=true;
  recognition.continuous=false;
  let finalText="";
- status.textContent="Listeningï¿½ speak your report.";
+ status.textContent="Listeningâ€¦ speak your report.";
  recognition.onresult=e=>{
   let text="";
   for(let i=e.resultIndex;i<e.results.length;i++)text+=e.results[i][0].transcript;
@@ -1219,15 +1268,38 @@ const stopCam=()=>{
 $("#cx").onclick=stopCam;
 $("#shot").onclick=()=>stamp($("#vid"),$("#vid").videoWidth||1280,$("#vid").videoHeight||720);
 
+async function loadImgBitmapOrElement(file){
+ if(typeof createImageBitmap==="function"){
+  try{
+   return await createImageBitmap(file);
+  }catch(e){
+   console.warn("createImageBitmap fallback:", e);
+  }
+ }
+ return new Promise((resolve,reject)=>{
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+   URL.revokeObjectURL(url);
+   resolve(img);
+  };
+  img.onerror=err=>{
+   URL.revokeObjectURL(url);
+   reject(new Error("Could not decode image file"));
+  };
+  img.src=url;
+ });
+}
+
 $("#cf").onchange=async e=>{
  const f=e.target.files[0];
  e.target.value="";
  if(!f)return;
  try{
-  const b=await createImageBitmap(f);
-  stamp(b,b.width,b.height);
+  const b=await loadImgBitmapOrElement(f);
+  stamp(b,b.naturalWidth||b.width,b.naturalHeight||b.height);
  }catch(x){
-  toast("Could not read the photo.");
+  toast("Could not read the photo: "+(x.message||x));
  }
 };
 
@@ -1439,9 +1511,11 @@ if($("#galleryUpload"))$("#galleryUpload").onchange=async e=>{
  if(files.length>remaining)toast("Only "+remaining+" more photo(s) allowed. Processing first "+remaining+".");
  for(const f of toProcess){
   try{
-   const b=await createImageBitmap(f);
+   const b=await loadImgBitmapOrElement(f);
    await new Promise((resolve,reject)=>{
-    const sc2=Math.min(1,1280/b.width),w2=Math.round(b.width*sc2),h2=Math.round(b.height*sc2);
+    const bw=b.naturalWidth||b.width;
+    const bh=b.naturalHeight||b.height;
+    const sc2=Math.min(1,1280/bw),w2=Math.round(bw*sc2),h2=Math.round(bh*sc2);
     const c2=document.createElement("canvas");
     c2.width=w2;c2.height=h2;
     const x2=c2.getContext("2d");
@@ -1463,10 +1537,10 @@ if($("#galleryUpload"))$("#galleryUpload").onchange=async e=>{
       drawMine();
       toast("Photo saved "+cur.photos.length+"/10");
       resolve();
-     }catch(err){toast("Upload failed: "+err.message);reject(err)}
+     }catch(err){toast("Upload failed: "+(err.message||err));reject(err)}
     },"image/jpeg",0.82);
    });
-  }catch(err){toast("Could not process photo: "+err.message)}
+  }catch(err){toast("Could not process photo: "+(err.message||err))}
  }
 };
 
@@ -1492,9 +1566,9 @@ async function exportBasicDashboardPPT(){
  const slide=pptx.addSlide();
  slide.background={color:"F6F0E5"};
  slide.addText("Poshan Yatra 2026",{x:0.55,y:0.55,w:8.5,h:0.65,fontSize:30,bold:true,color:"355C7D",fontFace:"Georgia"});
- slide.addText("G-051 · Gir Somnath · Gujarat Vidyapith",{x:0.58,y:1.28,w:8,h:0.3,fontSize:13,color:"263B52"});
+ slide.addText("G-051 Â· Gir Somnath Â· Gujarat Vidyapith",{x:0.58,y:1.28,w:8,h:0.3,fontSize:13,color:"263B52"});
  const stats=["Teams reporting: "+TEAMS.filter(t=>rep(t.id).length).length+"/"+TEAMS.length,"Students: "+NS,"Schools visited: "+new Set(reports.map(r=>(r.school||"").toLowerCase()).filter(Boolean)).size,"Photographs: "+reports.reduce((n,r)=>n+np(r),0)];
- slide.addText(stats.map(x=>"• "+x).join("\n"),{x:0.7,y:2,w:7,h:2.4,fontSize:20,color:"355C7D"});
+ slide.addText(stats.map(x=>"â€¢ "+x).join("\n"),{x:0.7,y:2,w:7,h:2.4,fontSize:20,color:"355C7D"});
  slide.addText("Generated "+new Date().toLocaleString("en-IN"),{x:0.7,y:6.6,w:6,h:0.3,fontSize:10,color:"6C6C6C"});
  await pptx.writeFile({fileName:"PoshanYatra_G051_GirSomnath_Overview_"+today()+".pptx"});
 }
@@ -1633,7 +1707,7 @@ async function exportDesignerPPT(){
   toast("Designer PPT downloaded successfully! âœ“");
  }catch(e){
   console.error("Designer PPT export failed:",e);
-  toast("Creating a compatible PPT export…");
+  toast("Creating a compatible PPT exportâ€¦");
   try{await exportBasicDashboardPPT();toast("Compatible PPT downloaded successfully.");}
   catch(fallbackError){toast("PPT export failed: "+(fallbackError.message||fallbackError));}
  }

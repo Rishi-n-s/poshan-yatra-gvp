@@ -170,7 +170,8 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
     <button class="btn" id="snap">📷 Open camera</button>
    </p>
    <p style="margin-top:8px">
-    <label class="btn alt" style="margin:0;cursor:pointer">Upload from device<input id="galleryUpload" type="file" accept="image/*" multiple class="hide"></label>
+    <button type="button" class="btn alt" id="btnGallery" style="margin:0;cursor:pointer">📁 Upload from device</button>
+    <input id="galleryUpload" type="file" accept="image/*" multiple style="position:fixed;top:-1000px;left:-1000px;opacity:0;pointer-events:none">
    </p>
    <div class="ph" id="myph"></div>
   </div>
@@ -1376,10 +1377,7 @@ window.deletePhoto=async idx=>{
 /* ---------- Camera + Watermark Stamping ---------- */
 let stream;
 $("#snap").onclick=async()=>{
- if(!$("#fs").value.trim()||!($("#fp").value.trim()||pos)){
-  toast("Enter school / place and address first, then tap Open camera.");
-  return;
- }
+ if(!me){toast("Please sign in or select a team first.");return}
  if(cur.photos.length>=10){
   toast("10 photos already taken for this day.");
   return;
@@ -1445,9 +1443,11 @@ async function stamp(v,vw,vh){
  x.drawImage(v,0,0,w,h);
  
  const t=new Date().toLocaleString("en-IN"),g=pos?pos.latitude.toFixed(5)+", "+pos.longitude.toFixed(5):"GPS n/a";
+ const scName=$("#fs").value.trim()||"Gujarat Vidyapith";
+ const scAddr=$("#fp").value.trim()||(pos?pos.latitude.toFixed(5)+", "+pos.longitude.toFixed(5):"Field Visit");
  const L=[
   MAIN+" · "+T(me).n+" · Day "+$("#fday").value,
-  $("#fs").value.trim()+" — "+$("#fp").value.trim(),
+  scName+" — "+scAddr,
   t+" · "+g
  ];
  const fs=Math.max(14,Math.round(w/42)),bh=fs*3.9;
@@ -1647,12 +1647,13 @@ $("#clrData").onclick=async()=>{
 };
 
 /* ---------- Gallery Upload Handler ---------- */
+if($("#btnGallery"))$("#btnGallery").onclick=()=>{
+ const inp=$("#galleryUpload");
+ if(inp)inp.click();
+};
+
 if($("#galleryUpload"))$("#galleryUpload").onchange=async e=>{
- if(!me){toast("Please sign in first.");return}
- if(!$("#fs").value.trim()||!($("#fp").value.trim()||pos)){
-  toast("Enter school / place and address first, then upload photos.");
-  return;
- }
+ if(!me){toast("Please sign in or select a team first.");return}
  const files=[...e.target.files];
  e.target.value="";
  const remaining=10-cur.photos.length;
@@ -1671,7 +1672,9 @@ if($("#galleryUpload"))$("#galleryUpload").onchange=async e=>{
     const x2=c2.getContext("2d");
     x2.drawImage(b,0,0,w2,h2);
     const tm2=new Date().toLocaleString("en-IN"),g2=pos?pos.latitude.toFixed(5)+", "+pos.longitude.toFixed(5):"GPS n/a";
-    const LL=[MAIN+" · "+T(me).n+" · Day "+$("#fday").value,$("#fs").value.trim()+" — "+$("#fp").value.trim(),tm2+" · "+g2];
+    const scName=$("#fs").value.trim()||"Gujarat Vidyapith";
+    const scAddr=$("#fp").value.trim()||(pos?pos.latitude.toFixed(5)+", "+pos.longitude.toFixed(5):"Field Visit");
+    const LL=[MAIN+" · "+T(me).n+" · Day "+$("#fday").value,scName+" — "+scAddr,tm2+" · "+g2];
     const fs2=Math.max(14,Math.round(w2/42)),bh2=fs2*3.9;
     x2.fillStyle="rgba(0,0,0,0.65)";x2.fillRect(0,h2-bh2,w2,bh2);
     x2.fillStyle="#fff";x2.font="600 "+fs2+"px sans-serif";x2.textBaseline="top";
@@ -1681,6 +1684,7 @@ if($("#galleryUpload"))$("#galleryUpload").onchange=async e=>{
     LL.forEach((s,i)=>x2.fillText(s,textX3,h2-bh2+fs2*0.35+i*fs2*1.15,w2-textX3-12));
     c2.toBlob(async bl=>{
      try{
+      if(!bl)throw new Error("Could not process image");
       const a=await window._upload(bl);
       cur.photos.push({id:a.id,url:a.url,time:tm2,gps:g2});
       await saveRep();

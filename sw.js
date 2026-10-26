@@ -1,5 +1,5 @@
 // Bump this whenever a deployed static asset needs to replace an older cached copy.
-const C = "py-v9";
+const C = "py-v10";
 const A = [
   "./",
   "index.html",

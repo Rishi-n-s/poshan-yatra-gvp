@@ -455,6 +455,7 @@ const localAssets={
   });
  }
 };
+window._upload=localAssets.upload.bind(localAssets);
 
 /* ---------- Initialization ---------- */
 function tab(t){
@@ -585,14 +586,15 @@ function updateTeamQuickSelect(){
 
   // Helper: upload blob to Supabase Storage with offline/data-url fallback
   window._upload=async(blob)=>{
-   const ext=blob.type.includes("png")?"png":"jpeg";
+   const mime=(blob&&blob.type)?blob.type:"image/jpeg";
+   const ext=mime.includes("png")?"png":(mime.includes("webp")?"webp":"jpeg");
    const name=Date.now()+"_"+Math.random().toString(36).slice(2,8)+"."+ext;
    if(_supa){
     try{
-     const{data,error}=await _supa.storage.from("photos").upload(name,blob,{contentType:blob.type,upsert:false});
+     const{data,error}=await _supa.storage.from("photos").upload(name,blob,{contentType:mime,upsert:false});
      if(!error&&data){
       const{data:{publicUrl}}=_supa.storage.from("photos").getPublicUrl(name);
-      return{id:name,url:publicUrl,sizeBytes:blob.size};
+      return{id:name,url:publicUrl,sizeBytes:blob.size||0};
      }
      console.warn("Supabase photo storage upload error, using local/data URL fallback:", error);
     }catch(storageErr){
@@ -627,18 +629,23 @@ function updateTeamQuickSelect(){
    if(data&&data.logo){setWatermarkLogo(data.logo);}
   };
 
-  await Promise.all([fetchReports(),fetchTeams(),fetchSettings()]);
-  await initDefaultLogins();
+  try{
+   await Promise.all([fetchReports(),fetchTeams(),fetchSettings()]);
+   await initDefaultLogins();
 
-  // Realtime subscriptions
-  _supa.channel("db-changes")
-   .on("postgres_changes",{event:"*",schema:"public",table:"reports"},fetchReports)
-   .on("postgres_changes",{event:"*",schema:"public",table:"teams"},fetchTeams)
-   .on("postgres_changes",{event:"*",schema:"public",table:"settings"},fetchSettings)
-   .subscribe();
+   // Realtime subscriptions
+   _supa.channel("db-changes")
+    .on("postgres_changes",{event:"*",schema:"public",table:"reports"},fetchReports)
+    .on("postgres_changes",{event:"*",schema:"public",table:"teams"},fetchTeams)
+    .on("postgres_changes",{event:"*",schema:"public",table:"settings"},fetchSettings)
+    .subscribe();
 
-  $("#liveBadge").textContent="Cloud Live";
-  $("#fbStatusText").innerHTML='<b style="color:var(--ok)">&#10003; Connected to Supabase</b>. Real-time sync is active across all devices.';
+   $("#liveBadge").textContent="Cloud Live";
+   $("#fbStatusText").innerHTML='<b style="color:var(--ok)">&#10003; Connected to Supabase</b>. Real-time sync is active across all devices.';
+  }catch(initErr){
+   console.warn("Supabase init/connect warning, operating in offline-ready mode:", initErr);
+   $("#liveBadge").textContent="Offline Ready";
+  }
  }else{
   // -------- Local/offline fallback --------
   $("#liveBadge").textContent="Local / Offline Ready";

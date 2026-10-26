@@ -158,8 +158,9 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
     <label>Day report</label>
     <textarea id="fr" rows="5" placeholder="Describe the day's activities, participation, outcomes, and observations."></textarea>
     <p class="mut" style="margin:5px 0 0"><button class="btn alt" type="button" id="voiceReport" style="padding:6px 10px;min-height:0">Speak report</button> <span id="voiceStatus"></span></p>
-    <p style="margin-top:16px">
+    <p style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
      <button class="btn" id="save">Save day report</button>
+     <button class="btn alt" type="button" id="delRepBtn" style="color:#d32f2f;border-color:#d32f2f">🗑️ Delete Day Report</button>
      <span class="mut" id="sv" style="margin-left:10px"></span>
     </p>
    </div>
@@ -169,9 +170,12 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
    <p>
     <button class="btn" id="snap">📷 Open camera</button>
    </p>
-   <p style="margin-top:8px">
-    <button type="button" class="btn alt" id="btnGallery" style="margin:0;cursor:pointer">📁 Upload from device</button>
-    <input id="galleryUpload" type="file" accept="image/*" multiple style="position:fixed;top:-1000px;left:-1000px;opacity:0;pointer-events:none">
+   <p style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <label class="btn alt" style="margin:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+     📁 Upload from device
+     <input id="galleryUpload" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.heic" multiple style="display:none">
+    </label>
+    <span class="mut" id="galleryStatus" style="font-size:12px"></span>
    </p>
    <div class="ph" id="myph"></div>
   </div>
@@ -210,8 +214,11 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
   <div class="card" style="margin-top:14px">
    <h3>1 · Watermark Logo</h3>
    <p class="mut">Default watermark is Gujarat Vidyapith logo (<code>logo.png</code>). Upload another if needed.</p>
-   <input type="file" id="lf" accept="image/*">
-   <div id="lst" class="mut" style="margin-top:4px"></div>
+   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <input type="file" id="lf" accept="image/*" style="flex:1;min-width:200px">
+    <button class="btn alt" type="button" id="btnResetLogo" style="font-size:12px;padding:6px 12px;min-height:0">Reset to Default Logo</button>
+   </div>
+   <div id="lst" class="mut" style="margin-top:6px"></div>
   </div>
   
   <div class="card" style="margin-top:14px">
@@ -561,20 +568,35 @@ function updateTeamQuickSelect(){
  if(sbUrl&&sbAnon&&!/PASTE/.test(sbUrl)){
   _supa=supabase.createClient(sbUrl,sbAnon);
 
-  // Helper: upload blob to Supabase Storage with offline fallback
+  // Helper: set active watermark logo and preload image
+  window.setWatermarkLogo=(url)=>{
+   logoUrl=url||"logo.png";
+   if(!logoImg)logoImg=new Image();
+   logoImg.crossOrigin="anonymous";
+   logoImg.src=logoUrl;
+   const hl=$("#hl");if(hl)hl.src=logoUrl;
+   const lst=$("#lst");
+   if(lst){
+    lst.innerHTML=logoUrl==="logo.png"
+     ? 'Using default watermark logo (<code>logo.png</code>)'
+     : 'Custom watermark logo active: <a href="'+logoUrl+'" target="_blank" style="color:var(--brand)">View current logo</a>';
+   }
+  };
+
+  // Helper: upload blob to Supabase Storage with offline/data-url fallback
   window._upload=async(blob)=>{
    const ext=blob.type.includes("png")?"png":"jpeg";
    const name=Date.now()+"_"+Math.random().toString(36).slice(2,8)+"."+ext;
    if(_supa){
     try{
-     const{error}=await _supa.storage.from("photos").upload(name,blob,{contentType:blob.type,upsert:false});
-     if(!error){
+     const{data,error}=await _supa.storage.from("photos").upload(name,blob,{contentType:blob.type,upsert:false});
+     if(!error&&data){
       const{data:{publicUrl}}=_supa.storage.from("photos").getPublicUrl(name);
       return{id:name,url:publicUrl,sizeBytes:blob.size};
      }
-     console.warn("Supabase photo storage upload error, using local fallback:", error);
+     console.warn("Supabase photo storage upload error, using local/data URL fallback:", error);
     }catch(storageErr){
-     console.warn("Supabase storage exception, using local fallback:", storageErr);
+     console.warn("Supabase storage exception, using local/data URL fallback:", storageErr);
     }
    }
    return await localAssets.upload(blob);
@@ -602,7 +624,7 @@ function updateTeamQuickSelect(){
   };
   const fetchSettings=async()=>{
    const{data}=await _supa.from("settings").select("*").eq("id","main").maybeSingle();
-   if(data&&data.logo){logoUrl=data.logo;logoImg=new Image();logoImg.src=logoUrl;$("#hl").src=logoUrl;}
+   if(data&&data.logo){setWatermarkLogo(data.logo);}
   };
 
   await Promise.all([fetchReports(),fetchTeams(),fetchSettings()]);
@@ -622,8 +644,24 @@ function updateTeamQuickSelect(){
   $("#liveBadge").textContent="Local / Offline Ready";
   $("#fbStatusText").innerHTML='<b>Offline Mode (IndexedDB)</b>.<br><span class="mut">Paste your Supabase URL &amp; anon key in <code>config.js</code> to enable real-time cloud sync.</span>';
 
+  if(!window.setWatermarkLogo){
+   window.setWatermarkLogo=(url)=>{
+    logoUrl=url||"logo.png";
+    if(!logoImg)logoImg=new Image();
+    logoImg.crossOrigin="anonymous";
+    logoImg.src=logoUrl;
+    const hl=$("#hl");if(hl)hl.src=logoUrl;
+    const lst=$("#lst");
+    if(lst){
+     lst.innerHTML=logoUrl==="logo.png"
+      ? 'Using default watermark logo (<code>logo.png</code>)'
+      : 'Custom watermark logo active: <a href="'+logoUrl+'" target="_blank" style="color:var(--brand)">View current logo</a>';
+    }
+   };
+  }
+
   const stLocal=await idbGet("settings","main");
-  if(stLocal&&stLocal.logo){logoUrl=stLocal.logo;logoImg.src=logoUrl;$("#hl").src=logoUrl;}
+  if(stLocal&&stLocal.logo){setWatermarkLogo(stLocal.logo);}
   window._upload=localAssets.upload.bind(localAssets);
 
   await initDefaultLogins();
@@ -639,7 +677,7 @@ function updateTeamQuickSelect(){
   });
   localDb.doc("settings/main").onSnapshot(s=>{
    const d=s.data()||{};
-   if(d.logo){logoUrl=d.logo;logoImg=new Image();logoImg.src=logoUrl;$("#hl").src=logoUrl;}
+   if(d.logo){setWatermarkLogo(d.logo);}
   });
  }
 
@@ -745,7 +783,7 @@ function drawDash(){
       <td data-label="Photos">${np(r)}/10</td>
       <td data-label="Action" style="white-space:nowrap">
         <button class="btn alt edit-report" data-edit="${esc(r.id)}" style="font-size:12px;padding:5px 8px">${isAdmin()||me===r.team_id?"Edit":"Open"}</button>
-        ${isAdmin()?`<button class="btn alt delete-report" data-del="${esc(r.id)}" style="font-size:12px;padding:5px 8px;color:#d32f2f;border-color:#d32f2f55;margin-left:4px">Delete</button>`:""}
+        ${isAdmin()||me===r.team_id?`<button class="btn alt delete-report" data-del="${esc(r.id)}" style="font-size:12px;padding:5px 8px;color:#d32f2f;border-color:#d32f2f55;margin-left:4px">Delete</button>`:""}
       </td>
      </tr>`).join("")||'<tr><td colspan="9" class="mut" style="text-align:center;padding:16px">No reports recorded yet. Go to Team entry to record a day!</td></tr>'}
    </table>
@@ -777,7 +815,7 @@ function drawDash(){
  document.querySelectorAll("#dash .delete-report").forEach(b=>b.onclick=async()=>{
   const report=reports.find(r=>r.id===b.dataset.del);
   if(!report)return;
-  if(!confirm("Admin Delete: Are you sure you want to permanently delete Day "+report.day+" report for "+report.team+"?"))return;
+  if(!confirm("Are you sure you want to permanently delete Day "+report.day+" report for "+report.team+"?"))return;
   try{
    if(_supa){
     const {error}=await _supa.from("reports").delete().eq("id",report.id);
@@ -1335,6 +1373,43 @@ $("#save").onclick=async()=>{
  }
 };
 
+const delBtn=$("#delRepBtn");
+if(delBtn)delBtn.onclick=async()=>{
+ if(!me){toast("Please choose a team first.");return}
+ const dayVal=$("#fday").value;
+ const repId=rid();
+ const teamInfo=T(me);
+ if(!confirm("Are you sure you want to delete Day "+dayVal+" report and all its photographs for "+(teamInfo?teamInfo.n:me)+"?"))return;
+ try{
+  if(_supa){
+   const {error}=await _supa.from("reports").delete().eq("id",repId);
+   if(error)console.warn("Cloud report delete note:", error.message);
+   if(cur.photos&&cur.photos.length){
+    try{
+     const keys=cur.photos.map(p=>p.id||(p.url&&p.url.split("/").pop())).filter(Boolean);
+     if(keys.length)await _supa.storage.from("photos").remove(keys);
+    }catch(e){}
+   }
+  }
+  await localDb.doc("reports/"+repId).delete();
+  try{localStorage.removeItem("py_draft_"+repId)}catch(e){}
+  reports=reports.filter(r=>r.id!==repId);
+  cur={photos:[]};
+  $("#fs").value="";
+  if($("#fst"))$("#fst").value="";
+  $("#fp").value="";
+  $("#fpn").value="";
+  $("#fpc").value="";
+  $("#fr").value="";
+  document.querySelectorAll(".act").forEach(a=>a.value="");
+  drawMine();
+  drawDash();
+  toast("Day "+dayVal+" report deleted successfully! ✓");
+ }catch(err){
+  toast("Delete failed: "+(err.message||err));
+ }
+};
+
 /* ---------- Voice-to-text day report ---------- */
 $("#voiceReport").onclick=()=>{
  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -1543,13 +1618,43 @@ $("#lf").onchange=async e=>{
   }else{
    await localDb.doc("settings/main").set({logo:a.url});
   }
-  logoUrl=a.url;
-  logoImg.src=logoUrl;
-  $("#hl").src=logoUrl;
+  if(typeof window.setWatermarkLogo==="function"){
+   window.setWatermarkLogo(a.url);
+  }else{
+   logoUrl=a.url;
+   if(!logoImg)logoImg=new Image();
+   logoImg.src=logoUrl;
+   const hl=$("#hl");if(hl)hl.src=logoUrl;
+  }
   $("#lst").textContent="Custom watermark logo saved ✓";
   toast("Logo updated!");
  }catch(x){
   $("#lst").textContent="Failed: "+(x.message||x);
+ }
+};
+
+const btnResetLogo=$("#btnResetLogo");
+if(btnResetLogo)btnResetLogo.onclick=async()=>{
+ if(!confirm("Reset watermark logo back to the default Gujarat Vidyapith logo (logo.png)?"))return;
+ try{
+  if(_supa){
+   await _supa.from("settings").upsert({id:"main",logo:"logo.png"},{onConflict:"id"});
+  }else{
+   await localDb.doc("settings/main").set({logo:"logo.png"});
+  }
+  if(typeof window.setWatermarkLogo==="function"){
+   window.setWatermarkLogo("logo.png");
+  }else{
+   logoUrl="logo.png";
+   if(!logoImg)logoImg=new Image();
+   logoImg.src=logoUrl;
+   const hl=$("#hl");if(hl)hl.src=logoUrl;
+  }
+  const lf=$("#lf");if(lf)lf.value="";
+  $("#lst").textContent="Reset to default Gujarat Vidyapith logo (logo.png) ✓";
+  toast("Watermark logo reset to default!");
+ }catch(err){
+  toast("Could not reset logo: "+(err.message||err));
  }
 };
 
@@ -1656,16 +1761,24 @@ if($("#galleryUpload"))$("#galleryUpload").onchange=async e=>{
  if(!me){toast("Please sign in or select a team first.");return}
  const files=[...e.target.files];
  e.target.value="";
+ if(!files.length)return;
+
  const remaining=10-cur.photos.length;
- if(remaining<=0){toast("10 photos already taken for this day.");return}
+ if(remaining<=0){toast("10 photos already recorded for this day.");return}
  const toProcess=files.slice(0,remaining);
- if(files.length>remaining)toast("Only "+remaining+" more photo(s) allowed. Processing first "+remaining+".");
- for(const f of toProcess){
+ if(files.length>remaining)toast("Only "+remaining+" more photo(s) allowed. Processing "+remaining+".");
+
+ const stSpan=$("#galleryStatus");
+ if(stSpan)stSpan.textContent="Processing "+toProcess.length+" photo(s)…";
+
+ for(let idx=0; idx<toProcess.length; idx++){
+  const f=toProcess[idx];
+  if(stSpan)stSpan.textContent="Processing photo "+(idx+1)+"/"+toProcess.length+"…";
   try{
    const b=await loadImgBitmapOrElement(f);
    await new Promise((resolve,reject)=>{
-    const bw=b.naturalWidth||b.width;
-    const bh=b.naturalHeight||b.height;
+    const bw=b.naturalWidth||b.width||1280;
+    const bh=b.naturalHeight||b.height||720;
     const sc2=Math.min(1,1280/bw),w2=Math.round(bw*sc2),h2=Math.round(bh*sc2);
     const c2=document.createElement("canvas");
     c2.width=w2;c2.height=h2;
@@ -1678,24 +1791,39 @@ if($("#galleryUpload"))$("#galleryUpload").onchange=async e=>{
     const fs2=Math.max(14,Math.round(w2/42)),bh2=fs2*3.9;
     x2.fillStyle="rgba(0,0,0,0.65)";x2.fillRect(0,h2-bh2,w2,bh2);
     x2.fillStyle="#fff";x2.font="600 "+fs2+"px sans-serif";x2.textBaseline="top";
+    
+    // Draw watermark logo safely without blocking if image fails
+    try{
+     const lw2=logoImg&&logoImg.complete&&logoImg.naturalWidth?Math.round(bh2*0.8*logoImg.naturalWidth/logoImg.naturalHeight):0;
+     if(lw2>0){
+      x2.fillStyle="#ffffff";x2.beginPath();x2.arc(10+bh2*0.4,h2-bh2+bh2*0.5,bh2*0.42,0,Math.PI*2);x2.fill();
+      x2.drawImage(logoImg,10,h2-bh2+bh2*0.1,bh2*0.8,bh2*0.8);
+      x2.fillStyle="#ffffff";
+     }
+    }catch(logErr){console.warn("Logo watermark draw notice:", logErr);}
+    
     const lw2=logoImg&&logoImg.complete&&logoImg.naturalWidth?Math.round(bh2*0.8*logoImg.naturalWidth/logoImg.naturalHeight):0;
-    if(lw2>0){x2.fillStyle="#ffffff";x2.beginPath();x2.arc(10+bh2*0.4,h2-bh2+bh2*0.5,bh2*0.42,0,Math.PI*2);x2.fill();x2.drawImage(logoImg,10,h2-bh2+bh2*0.1,bh2*0.8,bh2*0.8);x2.fillStyle="#ffffff"}
     const textX3=lw2>0?bh2*0.8+24:14;
     LL.forEach((s,i)=>x2.fillText(s,textX3,h2-bh2+fs2*0.35+i*fs2*1.15,w2-textX3-12));
+    
     c2.toBlob(async bl=>{
      try{
-      if(!bl)throw new Error("Could not process image");
+      if(!bl)throw new Error("Could not compress photo");
       const a=await window._upload(bl);
       cur.photos.push({id:a.id,url:a.url,time:tm2,gps:g2});
       await saveRep();
       drawMine();
-      toast("Photo saved "+cur.photos.length+"/10");
+      toast("Photo uploaded ("+cur.photos.length+"/10) ✓");
       resolve();
      }catch(err){toast("Upload failed: "+(err.message||err));reject(err)}
     },"image/jpeg",0.82);
    });
-  }catch(err){toast("Could not process photo: "+(err.message||err))}
+  }catch(err){
+   toast("Could not process photo: "+(err.message||err));
+  }
  }
+ if(stSpan)stSpan.textContent="Upload finished ("+cur.photos.length+"/10)";
+ setTimeout(()=>{if(stSpan)stSpan.textContent="";},3500);
 };
 
 /* ---------- Designer PPT Export ---------- */

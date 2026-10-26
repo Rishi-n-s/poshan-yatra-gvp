@@ -171,7 +171,7 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
     <button class="btn" id="snap">📷 Open camera</button>
    </p>
    <p style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-    <label class="btn alt" style="margin:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+    <label id="btnGallery" class="btn alt" style="margin:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
      📁 Upload from device
      <input id="galleryUpload" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.heic" multiple style="display:none">
     </label>
@@ -669,7 +669,7 @@ function updateTeamQuickSelect(){
 
   const stLocal=await idbGet("settings","main");
   if(stLocal&&stLocal.logo){setWatermarkLogo(stLocal.logo);}
-  window._upload=localAssets.upload.bind(localAssets);
+  // window._upload=localAssets.upload.bind(localAssets);
 
   await initDefaultLogins();
 
@@ -1259,7 +1259,7 @@ function showForm(){
  loadCur();
 }
 
-const rid=()=>me+"_d"+$("#fday").value;
+const rid=()=>me+"_d"+$("#fday").value+"_"+Date.now();
 
 async function loadCur(){
  let d=null;

@@ -1,5 +1,5 @@
 // Bump this whenever a deployed static asset needs to replace an older cached copy.
-const C = "py-v10";
+const C = "py-v12";
 const A = [
   "./",
   "index.html",
@@ -11,7 +11,7 @@ const A = [
   "manifest.webmanifest"
 ];
 
-self.addEventListener("install", e => {
+self.addEventListener("install", e => { 
   e.waitUntil(
     caches.open(C).then(c => c.addAll(A)).catch(err => console.warn("Cache install warning:", err))
   );

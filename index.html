@@ -160,6 +160,7 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
     <p class="mut" style="margin:5px 0 0"><button class="btn alt" type="button" id="voiceReport" style="padding:6px 10px;min-height:0">Speak report</button> <span id="voiceStatus"></span></p>
     <p style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
      <button class="btn" id="save">Save day report</button>
+     <button class="btn alt" type="button" id="newVisitBtn" title="Clear form to record a second school visit on the same day as a NEW separate entry">➕ New School Visit</button>
      <button class="btn alt" type="button" id="delRepBtn" style="color:#d32f2f;border-color:#d32f2f">🗑️ Delete Day Report</button>
      <span class="mut" id="sv" style="margin-left:10px"></span>
     </p>
@@ -171,10 +172,10 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);b
     <button class="btn" id="snap">📷 Open camera</button>
    </p>
    <p style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-    <label id="btnGallery" class="btn alt" style="margin:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+    <button id="btnGallery" class="btn alt" type="button" style="margin:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
      📁 Upload from device
-     <input id="galleryUpload" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.heic" multiple style="display:none">
-    </label>
+    </button>
+    <input id="galleryUpload" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.heic" multiple style="display:none">
     <span class="mut" id="galleryStatus" style="font-size:12px"></span>
    </p>
    <div class="ph" id="myph"></div>
@@ -428,6 +429,20 @@ const localDb={
     notify(col);
     return row;
    },
+   async delete(){
+    if(!idb){
+     try{localStorage.removeItem(col+":"+id)}catch(e){}
+    }else{
+     await new Promise(res=>{
+      try{
+       const tx=idb.transaction(col,"readwrite");
+       tx.objectStore(col).delete(id);
+       tx.oncomplete=()=>res(true);tx.onerror=()=>res(false);
+      }catch(e){res(false)}
+     });
+    }
+    notify(col);
+   },
    async onSnapshot(cb){
     listeners[col]=listeners[col]||new Set();
     const refresh=async()=>{
@@ -455,7 +470,8 @@ const localAssets={
   });
  }
 };
-// window._upload=localAssets.upload.bind(localAssets);
+// Always provide a local upload path. Cloud setup below replaces this when available.
+window._upload=localAssets.upload.bind(localAssets);
 
 /* ---------- Initialization ---------- */
 function tab(t){
@@ -513,6 +529,7 @@ function updateTeamQuickSelect(){
     $("#lp").value=opt.dataset.p||"";
     if(isAdmin()){
      me=opt.value;
+     currentReportId=null;
      showForm();
     }
    }
@@ -534,6 +551,7 @@ function updateTeamQuickSelect(){
    const dNum=$("#adminAddDay").value;
    if(!tId)return;
    me=tId;
+   currentReportId=null;
    tab("field");
    showForm();
    $("#fday").value=dNum;
@@ -669,7 +687,8 @@ function updateTeamQuickSelect(){
 
   const stLocal=await idbGet("settings","main");
   if(stLocal&&stLocal.logo){setWatermarkLogo(stLocal.logo);}
-  // window._upload=localAssets.upload.bind(localAssets);
+  // Always provide a local upload path. Cloud setup below replaces this when available.
+window._upload=localAssets.upload.bind(localAssets);
 
   await initDefaultLogins();
 
@@ -806,11 +825,13 @@ function drawDash(){
  document.querySelectorAll("#dash .edit-report").forEach(b=>b.onclick=()=>{
   const report=reports.find(r=>r.id===b.dataset.edit);
   if(!report)return;
-  if(!isAdmin()&&me!==report.team_id){
+ if(!isAdmin()&&me!==report.team_id){
    tab("field");
    toast("Log in as "+report.team+" to edit this report.");
    return;
   }
+  currentReportId=report.id;
+  _pendingNewVisit=false;
   if(isAdmin()){
    me=report.team_id;
    showForm();
@@ -1192,6 +1213,7 @@ $("#lgo").onclick=async()=>{
   return;
  }
  $("#lerr").textContent="";
+ currentReportId=null;
  me=id;
  try{localStorage.setItem("py_me",id)}catch(e){}
  showForm();
@@ -1199,6 +1221,7 @@ $("#lgo").onclick=async()=>{
 
 $("#lout").onclick=()=>{
  me=null;
+ currentReportId=null;
  try{localStorage.removeItem("py_me")}catch(e){}
  $("#form").classList.add("hide");
  $("#login").classList.remove("hide");
@@ -1236,8 +1259,9 @@ function showForm(){
    const sel=$("#adminTeamSelect");
    if(sel){
     sel.innerHTML=TEAMS.map(t=>`<option value="${t.id}" ${t.id===me?"selected":""}>${t.n} (${t.t})</option>`).join("");
-    sel.onchange=e=>{
+   sel.onchange=e=>{
      me=e.target.value;
+     currentReportId=null;
      showForm();
     };
    }
@@ -1259,7 +1283,25 @@ function showForm(){
  loadCur();
 }
 
-const rid=()=>me+"_d"+$("#fday").value+"_"+Date.now();
+// Report ID: stable per team+day+school so a team can reopen & edit their report.
+// A _pendingNew flag (set by "New School Visit" button) forces a fresh unique ID.
+let _pendingNewVisit=false;
+// Set only when a report is opened from the dashboard. This lets same-day visits
+// (which have a unique timestamp in their ID) be edited rather than opening the
+// default report for that team and day.
+let currentReportId=null;
+const rid=()=>{
+ if(currentReportId)return currentReportId;
+ if(_pendingNewVisit){
+  // Generate unique ID on first save, then lock it in cur.id
+  if(cur&&cur.id&&cur.id.startsWith(me+"_d"))return cur.id;
+  const newId=me+"_d"+$("#fday").value+"_"+Date.now();
+  if(!cur)cur={photos:[]};
+  cur.id=newId;
+  return newId;
+ }
+ return me+"_d"+$("#fday").value;
+};
 
 async function loadCur(){
  let d=null;
@@ -1297,7 +1339,12 @@ async function loadCur(){
  }
  drawMine();
 }
-$("#fday").onchange=loadCur;
+$("#fday").onchange=()=>{
+ currentReportId=null;
+ _pendingNewVisit=false;
+ cur={photos:[]};
+ loadCur();
+};
 
 $("#form").addEventListener("input",()=>{
  if(!me)return;
@@ -1367,6 +1414,16 @@ async function saveRep(){
 $("#save").onclick=async()=>{
  try{
   const res=await saveRep();
+  // Keep the in-memory reports[] array in sync so drawDash/drawMine reflect edits
+  if(res){
+   const savedId=res.id||rid();
+   const idx=reports.findIndex(r=>r.id===savedId);
+   if(idx>=0){reports[idx]={...reports[idx],...res};}
+   else{reports.push({...res,id:savedId});}
+   if(cur)cur.id=savedId;
+   currentReportId=savedId;
+  }
+  _pendingNewVisit=false; // lock in the ID after first save
   if(res&&res._offline){
    $("#sv").textContent="Saved on device (Offline) ✓";
    toast("Report saved safely on device! (Offline mode)");
@@ -1374,10 +1431,30 @@ $("#save").onclick=async()=>{
    $("#sv").textContent="Saved ✓";
    toast("Report saved successfully!");
   }
+  drawDash();
   setTimeout(()=>$("#sv").textContent="",3000);
  }catch(e){
   $("#sv").textContent="Could not save: "+(e.message||e);
  }
+};
+
+// New School Visit – clear the form so the team can log a second school on the same day
+const _nvBtn=$("#newVisitBtn");
+if(_nvBtn)_nvBtn.onclick=()=>{
+ if(!me){toast("Please sign in first.");return}
+ if(!confirm("Start a NEW separate entry for a second school visit today? The current form will be cleared (save first if needed)."))return;
+ _pendingNewVisit=true;
+ currentReportId=null;
+ cur={photos:[],id:null};
+ $("#fs").value="";
+ if($("#fst"))$("#fst").value="";
+ $("#fp").value="";
+ $("#fpn").value="";
+ $("#fpc").value="";
+ $("#fr").value="";
+ document.querySelectorAll(".act").forEach(a=>a.value="");
+ drawMine();
+ toast("Form cleared – fill in the new school details and save.");
 };
 
 const delBtn=$("#delRepBtn");
@@ -1401,6 +1478,7 @@ if(delBtn)delBtn.onclick=async()=>{
   await localDb.doc("reports/"+repId).delete();
   try{localStorage.removeItem("py_draft_"+repId)}catch(e){}
   reports=reports.filter(r=>r.id!==repId);
+  currentReportId=null;
   cur={photos:[]};
   $("#fs").value="";
   if($("#fst"))$("#fst").value="";
@@ -1718,15 +1796,32 @@ $("#impJson").onchange=async e=>{
   const d=JSON.parse(txt);
   if(!d.reports&&!Array.isArray(d))throw new Error("Invalid backup format");
   const repList=d.reports||d;
+  let uploaded=0,uploadError="";
   for(const r of repList){
-   if(r&&r.id)await idbPut("reports",r);
+   if(!r||!r.id)continue;
+   await idbPut("reports",r);
+   if(_supa){
+    // Older backups may include fields that are absent from the live schema.
+    let payload={...r};
+    for(let attempt=0;attempt<8;attempt++){
+     const {error}=await _supa.from("reports").upsert(payload,{onConflict:"id"});
+     if(!error){uploaded++;break}
+     const missing=error.message&&error.message.match(/Could not find the '([^']+)' column/);
+     if(missing&&missing[1]){delete payload[missing[1]];continue}
+     uploadError=error.message||"Cloud upload failed";
+     break;
+    }
+   }
   }
   if(d.teams){
    for(const t of d.teams){if(t&&t.id)await idbPut("teams",t)}
   }
   notify("reports");notify("teams");
   toast("Data successfully imported! ✓ ("+repList.length+" reports)");
-  $("#bkMsg").textContent="Imported "+repList.length+" reports on "+new Date().toLocaleTimeString();
+  const cloudNote=_supa?"; "+uploaded+" uploaded to cloud":"";
+  $("#bkMsg").textContent=uploadError
+   ? "Imported to this device. Cloud upload issue: "+uploadError
+   : "Imported "+repList.length+" reports"+cloudNote+" on "+new Date().toLocaleTimeString();
  }catch(err){
   toast("Import failed: "+err.message);
   $("#bkMsg").textContent="Import error: "+err.message;
@@ -1769,6 +1864,9 @@ if($("#galleryUpload"))$("#galleryUpload").onchange=async e=>{
  const files=[...e.target.files];
  e.target.value="";
  if(!files.length)return;
+ // Guard: initialise cur if it hasn't been loaded yet
+ if(!cur||typeof cur!=="object")cur={photos:[]};
+ if(!Array.isArray(cur.photos))cur.photos=[];
 
  const remaining=10-cur.photos.length;
  if(remaining<=0){toast("10 photos already recorded for this day.");return}
@@ -1799,17 +1897,15 @@ if($("#galleryUpload"))$("#galleryUpload").onchange=async e=>{
     x2.fillStyle="rgba(0,0,0,0.65)";x2.fillRect(0,h2-bh2,w2,bh2);
     x2.fillStyle="#fff";x2.font="600 "+fs2+"px sans-serif";x2.textBaseline="top";
     
-    // Draw watermark logo safely without blocking if image fails
+    // lw2 hoisted before try{} - fixes duplicate-const SyntaxError that broke gallery upload
+    const lw2=logoImg&&logoImg.complete&&logoImg.naturalWidth?Math.round(bh2*0.8*logoImg.naturalWidth/logoImg.naturalHeight):0;
     try{
-     const lw2=logoImg&&logoImg.complete&&logoImg.naturalWidth?Math.round(bh2*0.8*logoImg.naturalWidth/logoImg.naturalHeight):0;
      if(lw2>0){
       x2.fillStyle="#ffffff";x2.beginPath();x2.arc(10+bh2*0.4,h2-bh2+bh2*0.5,bh2*0.42,0,Math.PI*2);x2.fill();
       x2.drawImage(logoImg,10,h2-bh2+bh2*0.1,bh2*0.8,bh2*0.8);
       x2.fillStyle="#ffffff";
      }
     }catch(logErr){console.warn("Logo watermark draw notice:", logErr);}
-    
-    const lw2=logoImg&&logoImg.complete&&logoImg.naturalWidth?Math.round(bh2*0.8*logoImg.naturalWidth/logoImg.naturalHeight):0;
     const textX3=lw2>0?bh2*0.8+24:14;
     LL.forEach((s,i)=>x2.fillText(s,textX3,h2-bh2+fs2*0.35+i*fs2*1.15,w2-textX3-12));
     

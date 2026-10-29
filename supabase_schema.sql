@@ -1,9 +1,25 @@
 -- Poshan Yatra 2026 - Supabase Schema Migration
 -- Run this in your Supabase Dashboard: SQL Editor -> New Query -> Run
 
--- 1. Ensure 'reports' table has the 'report' column and 'school_type'
+-- 1. Ensure 'reports' table has the 'report' column, 'school_type', and Anganwadi/School detail columns
 ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS report text;
 ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS school_type text;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS anganwadi_name text;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS anganwadi_area text;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS anganwadi_village text;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS anganwadi_worker text;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS anganwadi_enrolled integer;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS anganwadi_present integer;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS anganwadi_staff integer;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS school_area text;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS school_teacher text;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS school_enrolled integer;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS school_present integer;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS school_teachers_present integer;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS student_name text;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS student_course text;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS mentor_name text;
+ALTER TABLE IF EXISTS public.reports ADD COLUMN IF NOT EXISTS entry_data jsonb DEFAULT '{}'::jsonb;
 
 -- 2. If 'reports' table doesn't exist yet, create it with all columns:
 CREATE TABLE IF NOT EXISTS public.reports (

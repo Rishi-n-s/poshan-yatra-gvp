@@ -28,7 +28,7 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
   const url = e.request.url;
-  if (url.includes("supabase.co") || url.includes("firestore.googleapis.com") || url.includes("firebasestorage.googleapis.com")) return;
+  if (url.includes("supabase.co")) return;
 
   e.respondWith(
     caches.match(e.request).then(cached => {
